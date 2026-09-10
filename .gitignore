@@ -1,0 +1,23 @@
+# Build output
+target/
+
+# Local H2 database files (the app re-creates + re-seeds these on first run)
+data/
+
+# Logs
+*.log
+
+# Embedded Tomcat work dir
+tomcat/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+Thumbs.db
+.DS_Store

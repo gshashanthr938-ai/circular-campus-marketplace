@@ -1,0 +1,32 @@
+package com.campusmarket.web;
+
+import com.campusmarket.dao.StudentDao;
+import com.campusmarket.model.Student;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet("/profile")
+public class ProfileServlet extends HttpServlet {
+
+    private final StudentDao studentDao = new StudentDao();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        Student me = Web.currentStudent(req);
+        if (me == null) {
+            Web.redirect(req, resp, "/login");
+            return;
+        }
+        // Always show fresh wallet + sustainability points.
+        Student fresh = studentDao.findById(me.getId());
+        req.getSession().setAttribute("student", fresh);
+        req.setAttribute("student", fresh);
+        Web.render(req, resp, "profile.jsp");
+    }
+}
