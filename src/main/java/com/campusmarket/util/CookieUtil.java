@@ -14,7 +14,7 @@ import java.util.Set;
  *   - "recently_viewed" : listing ids a visitor has recently opened
  *
  * These live in cookies (client side) precisely to contrast with the
- * logged-in cart & wallet, which live in the server-side HttpSession / DB.
+ * logged-in identity and cart, which live in the server-side HttpSession / DB.
  */
 public final class CookieUtil {
 
@@ -53,13 +53,13 @@ public final class CookieUtil {
         resp.addCookie(c);
     }
 
-    /** Parse a comma-separated cookie value into a list of listing ids. */
+    /** Parse the RFC6265-safe dot format and legacy comma format into listing ids. */
     public static List<Long> parseIds(String cookieValue) {
         List<Long> ids = new ArrayList<>();
         if (cookieValue == null || cookieValue.isEmpty()) {
             return ids;
         }
-        for (String part : cookieValue.split(",")) {
+        for (String part : cookieValue.split("[.,]")) {
             part = part.trim();
             if (!part.isEmpty()) {
                 try {
@@ -76,7 +76,7 @@ public final class CookieUtil {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ids.size(); i++) {
             if (i > 0) {
-                sb.append(',');
+                sb.append('.');
             }
             sb.append(ids.get(i));
         }

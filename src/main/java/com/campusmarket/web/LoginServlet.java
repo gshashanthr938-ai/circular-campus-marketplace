@@ -41,7 +41,9 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Create the logged-in session (sessions hold identity + cart/wallet state).
+        // Create the logged-in session (sessions hold identity and cart state).
+        req.getSession();
+        req.changeSessionId();
         req.getSession().setAttribute("student", student);
 
         // Core requirement: merge the guest cookie-cart into the session cart.

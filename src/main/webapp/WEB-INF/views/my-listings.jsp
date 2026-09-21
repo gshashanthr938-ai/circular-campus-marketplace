@@ -26,12 +26,12 @@
                 <c:forEach var="l" items="${listings}">
                     <tr>
                         <td><a href="${ctx}/listing?id=${l.id}"><c:out value="${l.title}"/></a></td>
-                        <td><span class="badge badge-cat">${l.category}</span></td>
+                        <td><span class="badge badge-cat"><c:out value="${l.category}"/></span></td>
                         <td class="text-end">&#8377;<fmt:formatNumber value="${l.price}" minFractionDigits="2" maxFractionDigits="2"/></td>
                         <td>
                             <c:choose>
                                 <c:when test="${l.available}"><span class="badge bg-success">Available</span></c:when>
-                                <c:otherwise><span class="badge badge-sold">Sold</span></c:otherwise>
+                                <c:otherwise><span class="badge badge-sold"><c:out value="${l.status}"/></span></c:otherwise>
                             </c:choose>
                         </td>
                         <td class="text-end">
@@ -39,6 +39,7 @@
                                 <a class="btn btn-sm btn-outline-secondary" href="${ctx}/sell?id=${l.id}">Edit</a>
                                 <form method="post" action="${ctx}/my-listings" class="d-inline"
                                       onsubmit="return confirm('Remove this listing?');">
+<input type="hidden" name="csrfToken" value="${csrfToken}">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="${l.id}">
                                     <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>

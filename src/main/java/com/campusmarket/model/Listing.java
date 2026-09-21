@@ -15,6 +15,14 @@ public class Listing {
     private String condition;    // maps to column item_condition
     private String status;       // AVAILABLE | SOLD
     private Timestamp createdAt;
+    private String imagePath;
+    private String moderationNote;
+    private double averageRating;
+    private int reviewCount;
+    private Timestamp sellerMemberSince;
+    private int sellerSalesCount;
+    private double sellerAverageRating;
+    private int sellerReviewCount;
 
     public long getId() {
         return id;
@@ -96,25 +104,45 @@ public class Listing {
         this.createdAt = createdAt;
     }
 
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public String getModerationNote() { return moderationNote; }
+    public void setModerationNote(String moderationNote) { this.moderationNote = moderationNote; }
+    public double getAverageRating() { return averageRating; }
+    public void setAverageRating(double averageRating) { this.averageRating = averageRating; }
+    public int getReviewCount() { return reviewCount; }
+    public void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
+    public Timestamp getSellerMemberSince() { return sellerMemberSince; }
+    public void setSellerMemberSince(Timestamp sellerMemberSince) { this.sellerMemberSince = sellerMemberSince; }
+    public int getSellerSalesCount() { return sellerSalesCount; }
+    public void setSellerSalesCount(int sellerSalesCount) { this.sellerSalesCount = sellerSalesCount; }
+    public double getSellerAverageRating() { return sellerAverageRating; }
+    public void setSellerAverageRating(double sellerAverageRating) { this.sellerAverageRating = sellerAverageRating; }
+    public int getSellerReviewCount() { return sellerReviewCount; }
+    public void setSellerReviewCount(int sellerReviewCount) { this.sellerReviewCount = sellerReviewCount; }
+
     public boolean isAvailable() {
         return "AVAILABLE".equals(status);
     }
 
-    /** Illustration file for this listing, chosen from the title/category. */
+    /** Reference photograph for curated inventory; illustration fallback for other listings. */
     public String getImage() {
+        if (imagePath != null && imagePath.matches("[a-zA-Z0-9_./-]+\\.(jpg|jpeg|png|webp|svg)")) return imagePath;
+        String curated = com.campusmarket.db.Catalog.imageFor(title);
+        if (curated != null) return curated;
         String t = title == null ? "" : title.toLowerCase();
         String c = category == null ? "" : category.toLowerCase();
-        if (t.contains("calculator")) return "calculator.svg";
-        if (t.contains("headphone") || t.contains("earphone") || t.contains("earbud")) return "headphones.svg";
-        if (t.contains("lamp")) return "lamp.svg";
-        if (t.contains("table") || t.contains("desk") || t.contains("chair")) return "table.svg";
-        if (t.contains("drawing") || t.contains("compass") || t.contains("geometry")) return "drawing.svg";
-        if (c.contains("book")) return "books.svg";
-        if (c.contains("electronic")) return "electronics.svg";
-        if (c.contains("furniture")) return "furniture.svg";
-        if (c.contains("hostel")) return "hostel.svg";
+        if (t.contains("calculator")) return "photos/calculator.jpg";
+        if (t.contains("headphone") || t.contains("earphone") || t.contains("earbud")) return "photos/headphones.jpg";
+        if (t.contains("lamp")) return "photos/lamp.jpg";
+        if (t.contains("table") || t.contains("desk") || t.contains("chair")) return "photos/desk.jpg";
+        if (t.contains("drawing") || t.contains("compass") || t.contains("geometry")) return "photos/pencils.jpg";
+        if (c.contains("book")) return "photos/books.jpg";
+        if (c.contains("electronic")) return "photos/laptop.jpg";
+        if (c.contains("furniture")) return "photos/chair.jpg";
+        if (c.contains("hostel")) return "photos/mug.jpg";
         if (c.contains("cloth")) return "clothing.svg";
-        if (c.contains("sport")) return "sports.svg";
+        if (c.contains("sport")) return "photos/basketball.jpg";
         return "default.svg";
     }
 

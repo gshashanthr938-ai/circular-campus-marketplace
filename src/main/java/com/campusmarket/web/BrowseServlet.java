@@ -40,6 +40,7 @@ public class BrowseServlet extends HttpServlet {
 
         Web.consumeFlash(req);
         req.setAttribute("listings", listings);
+        req.setAttribute("categoryImages", com.campusmarket.db.Catalog.categoryImages());
         req.setAttribute("categories", listingDao.distinctCategories());
         req.setAttribute("recentlyViewed", recentlyViewed);
         req.setAttribute("search", search);

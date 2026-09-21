@@ -1,5 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
+cd /d "%~dp0"
+if not exist "%JAVA_HOME%\bin\javac.exe" set "JAVA_HOME="
 REM ============================================================
 REM  Circular Campus Marketplace - one-click run (Windows)
 REM  Starts the app on http://localhost:8080/

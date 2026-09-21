@@ -23,10 +23,14 @@ public class ProfileServlet extends HttpServlet {
             Web.redirect(req, resp, "/login");
             return;
         }
-        // Always show fresh wallet + sustainability points.
+        // Always show fresh profile and sustainability points.
         Student fresh = studentDao.findById(me.getId());
         req.getSession().setAttribute("student", fresh);
         req.setAttribute("student", fresh);
+        req.setAttribute("purchaseCount",new com.campusmarket.dao.TransactionDao().purchases(me.getId()).size());
+        req.setAttribute("salesCount",new com.campusmarket.dao.TransactionDao().sales(me.getId()).size());
+        req.setAttribute("listingCount",new com.campusmarket.dao.ListingDao().findBySeller(me.getId()).size());
+        req.setAttribute("notifications",new com.campusmarket.dao.NotificationDao().findFor(me.getId()));
         Web.render(req, resp, "profile.jsp");
     }
 }

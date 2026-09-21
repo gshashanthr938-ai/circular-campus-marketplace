@@ -42,6 +42,7 @@ public final class Web {
     /** Redirect using the app context path as prefix. */
     public static void redirect(HttpServletRequest req, HttpServletResponse resp, String path)
             throws IOException {
+        if (path == null || !path.startsWith("/") || path.startsWith("//") || path.contains("\\") || path.contains("\r") || path.contains("\n")) path="/browse";
         resp.sendRedirect(req.getContextPath() + path);
     }
 

@@ -15,7 +15,7 @@ public class LogoutServlet extends HttpServlet {
     private final CartDao cartDao = new CartDao();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session != null) {
             // Tidy up this session's cart rows, then invalidate the session

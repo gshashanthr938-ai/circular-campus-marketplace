@@ -12,8 +12,14 @@ public class TransactionView {
     private long listingId;
     private String listingTitle;
     private String counterpartyName; // seller name (buyer view) or buyer name (seller view)
+    private String counterpartyEmail;
+    private String counterpartyPhone;
     private BigDecimal amount;
     private Timestamp txnDate;
+    private boolean reviewed;
+    private String paymentMethod;
+    private String paymentReference;
+    private String paymentStatus;
 
     public long getTxnId() {
         return txnId;
@@ -47,6 +53,11 @@ public class TransactionView {
         this.counterpartyName = counterpartyName;
     }
 
+    public String getCounterpartyEmail() { return counterpartyEmail; }
+    public void setCounterpartyEmail(String counterpartyEmail) { this.counterpartyEmail = counterpartyEmail; }
+    public String getCounterpartyPhone() { return counterpartyPhone; }
+    public void setCounterpartyPhone(String counterpartyPhone) { this.counterpartyPhone = counterpartyPhone; }
+
     public BigDecimal getAmount() {
         return amount;
     }
@@ -62,4 +73,12 @@ public class TransactionView {
     public void setTxnDate(Timestamp txnDate) {
         this.txnDate = txnDate;
     }
+    public boolean isReviewed(){return reviewed;}
+    public void setReviewed(boolean reviewed){this.reviewed=reviewed;}
+    public String getPaymentMethod(){return paymentMethod;}
+    public void setPaymentMethod(String paymentMethod){this.paymentMethod=paymentMethod;}
+    public String getPaymentReference(){return paymentReference;}
+    public void setPaymentReference(String paymentReference){this.paymentReference=paymentReference;}
+    public String getPaymentStatus(){return paymentStatus;}
+    public void setPaymentStatus(String paymentStatus){this.paymentStatus=paymentStatus;}
 }

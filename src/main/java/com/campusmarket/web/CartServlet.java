@@ -52,10 +52,6 @@ public class CartServlet extends HttpServlet {
         Web.consumeFlash(req);
         req.setAttribute("items", items);
         req.setAttribute("total", total);
-        if (me != null) {
-            req.setAttribute("wallet", me.getWalletBalance());
-            req.setAttribute("affordable", me.getWalletBalance().compareTo(total) >= 0);
-        }
         Web.render(req, resp, "cart.jsp");
     }
 

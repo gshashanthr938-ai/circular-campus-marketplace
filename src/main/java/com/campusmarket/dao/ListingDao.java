@@ -16,7 +16,13 @@ import java.util.List;
 public class ListingDao {
 
     private static final String BASE_SELECT =
-            "SELECT l.*, s.name AS seller_name FROM listings l "
+            "SELECT l.*, s.name AS seller_name, "
+                    + "COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.listing_id=l.listing_id),0) AS avg_rating, "
+                    + "(SELECT COUNT(*) FROM reviews r WHERE r.listing_id=l.listing_id) AS review_count, "
+                    + "s.created_at AS seller_member_since, "
+                    + "(SELECT COUNT(*) FROM transactions tx JOIN listings sold ON sold.listing_id=tx.listing_id WHERE sold.seller_id=l.seller_id AND tx.payment_status='COMPLETED') AS seller_sales_count, "
+                    + "COALESCE((SELECT AVG(r2.rating) FROM reviews r2 JOIN listings rated ON rated.listing_id=r2.listing_id WHERE rated.seller_id=l.seller_id),0) AS seller_avg_rating, "
+                    + "(SELECT COUNT(*) FROM reviews r3 JOIN listings rated2 ON rated2.listing_id=r3.listing_id WHERE rated2.seller_id=l.seller_id) AS seller_review_count FROM listings l "
                     + "JOIN students s ON s.student_id = l.seller_id ";
 
     private Listing map(ResultSet rs) throws SQLException {
@@ -31,6 +37,14 @@ public class ListingDao {
         l.setCondition(rs.getString("item_condition"));
         l.setStatus(rs.getString("status"));
         l.setCreatedAt(rs.getTimestamp("created_at"));
+        l.setImagePath(rs.getString("image_path"));
+        l.setModerationNote(rs.getString("moderation_note"));
+        l.setAverageRating(rs.getDouble("avg_rating"));
+        l.setReviewCount(rs.getInt("review_count"));
+        l.setSellerMemberSince(rs.getTimestamp("seller_member_since"));
+        l.setSellerSalesCount(rs.getInt("seller_sales_count"));
+        l.setSellerAverageRating(rs.getDouble("seller_avg_rating"));
+        l.setSellerReviewCount(rs.getInt("seller_review_count"));
         return l;
     }
 
@@ -103,6 +117,16 @@ public class ListingDao {
         }
     }
 
+    public List<Listing> findAll() {
+        String sql = BASE_SELECT + "ORDER BY l.created_at DESC";
+        try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<Listing> out = new ArrayList<>();
+            while (rs.next()) out.add(map(rs));
+            return out;
+        } catch (SQLException e) { throw new RuntimeException(e); }
+    }
+
     /** Distinct categories currently available, for the filter dropdown. */
     public List<String> distinctCategories() {
         String sql = "SELECT DISTINCT category FROM listings ORDER BY category";
@@ -144,7 +168,7 @@ public class ListingDao {
     public void update(long id, long sellerId, String title, String description,
                        String category, BigDecimal price, String condition) {
         String sql = "UPDATE listings SET title=?, description=?, category=?, price=?, item_condition=? "
-                + "WHERE listing_id=? AND seller_id=?";
+                + "WHERE listing_id=? AND seller_id=? AND status='AVAILABLE'";
         try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, title);
             ps.setString(2, description);
@@ -161,7 +185,7 @@ public class ListingDao {
 
     /** Remove a listing (only if it belongs to the seller and is not sold). */
     public void delete(long id, long sellerId) {
-        String sql = "DELETE FROM listings WHERE listing_id=? AND seller_id=? AND status='AVAILABLE'";
+        String sql = "UPDATE listings SET status='REMOVED' WHERE listing_id=? AND seller_id=? AND status='AVAILABLE'";
         try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, id);
             ps.setLong(2, sellerId);
@@ -169,5 +193,14 @@ public class ListingDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /** Admin moderation: update the safe local image path and listing state. */
+    public boolean moderate(long id, String imagePath, String status, String note) {
+        String sql = "UPDATE listings SET image_path=?, status=?, moderation_note=? WHERE listing_id=?";
+        try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, imagePath); ps.setString(2, status); ps.setString(3, note); ps.setLong(4, id);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) { throw new RuntimeException(e); }
     }
 }

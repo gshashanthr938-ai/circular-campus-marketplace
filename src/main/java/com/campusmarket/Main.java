@@ -42,6 +42,9 @@ public class Main {
         ctx.setResources(resources);
 
         tomcat.start();
+        if (!ctx.getState().isAvailable() || !tomcat.getConnector().getState().isAvailable()) {
+            tomcat.stop(); tomcat.destroy(); throw new IllegalStateException("Server could not start; check the database settings and port.");
+        }
         System.out.println();
         System.out.println("==================================================");
         System.out.println("  Circular Campus Marketplace is running!");

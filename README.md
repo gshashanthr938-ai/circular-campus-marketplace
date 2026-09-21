@@ -1,122 +1,95 @@
-# ♻️ Circular Campus Marketplace — Resale, Cart & Wallet
+# CampusMarket — Circular Campus Marketplace
 
-**PBL2 · Web Technologies** — a peer-to-peer campus resale/thrift platform built with
-**Java Servlets, Cookies & HttpSession, and JDBC**.
+PBL2: Resale, Cart & Wallet · Web Technologies
 
-Students list second-hand items (books, gadgets, hostel essentials) for resale, browse and
-search listings, add items to a cart, and check out using an in-app **wallet** balance.
-**Guests** can browse and build a cart via **cookies**; when they log in, that cart is
-**migrated into their server-side session**.
+A campus resale marketplace using Java 17, Servlets, JSP/JSTL and JDBC. Guests build a cookie-based cart, sign in without losing it, and check out using UPI or net banking.
 
----
+## Features
 
-## ✨ Features (mapped to the PBL brief)
+- Seller-owned listings: create, edit and remove; sold items cannot be edited.
+- Search, category and price filters; nine categories and 30 starter listings.
+- Locally bundled reference photographs and recently viewed items.
+- Guest cookies, login session renewal and cart migration into HttpSession.
+- UPI and net-banking checkout with transaction references and sustainability points.
+- Sellers upload one to three real product pictures (JPG, PNG or WebP, up to 3 MB each).
+- Concurrent checkout protection, CSRF tokens, salted PBKDF2 passwords and prepared SQL statements.
+- First-completed-checkout wins when two buyers race for one item; the other buyer is waitlisted and notified when an administrator makes it available again.
+- Transaction-linked ratings and reviews shown on each product page.
+- Seller trust profiles show membership date, completed sales and ratings; email and phone remain protected until purchase.
+- Checkout requires clear purchase terms, records acceptance and unlocks pickup contact details in transaction history.
+- Administrator moderation for listing status, notes and local product photographs.
+- Transparent price limits by category and condition, plus blocked campus items such as tobacco, vapes, alcohol, weapons and narcotics.
 
-| Module | What it does |
+## Run
+
+Install JDK 17. On Windows, double-click `run.cmd`. On macOS/Linux, run `sh mvnw compile exec:java`. Maven and dependencies download on first run.
+
+Open http://localhost:8080/browse. Keep the server running. H2 is the default local preview database, saved under `data/` (excluded from Git).
+
+## MySQL — assignment configuration
+
+The assignment specifies MySQL. The full purchase flow was verified on MySQL 8.0.46. H2 remains the easy preview option; it should not be described as MySQL.
+
+Run `run-mysql.ps1` in PowerShell. It prompts for your MySQL credentials without saving the password. The default connection is localhost:3306/campus_marketplace. The account needs permission to create the database and tables on first run.
+
+Alternatively set these environment variables before starting Maven:
+
+| Variable | Value |
 | --- | --- |
-| **Listings** | Create, edit and remove a resale listing (category, price, condition). |
-| **Browse & Search** | Filter listings by text / category / max price. Guest-accessible. A **cookie** remembers *recently viewed* items. |
-| **Cart & Wallet** | Session-based cart for logged-in users; checkout deducts the in-app **wallet** balance. |
-| **Transaction History** | Separate **buyer** (purchases) and **seller** (sales) views. |
+| DB_DRIVER | com.mysql.cj.jdbc.Driver |
+| DB_URL | jdbc:mysql://localhost:3306/campus_marketplace?createDatabaseIfNotExist=true&serverTimezone=UTC |
+| DB_USER | Your MySQL username |
+| DB_PASSWORD | Your MySQL password; never commit it |
 
-### Cookies vs Sessions — the core learning objective
-- 🍪 **Cookies** → guest cart (`guest_cart`) and recently-viewed items (`recently_viewed`). Work without logging in.
-- 🔐 **HttpSession** → logged-in identity, the cart (persisted in `cart_items` keyed by session id) and wallet flow.
-- 🔄 **Cart migration** → on login, the cookie cart is merged into the session/DB cart and the cookie is cleared.
-- 🚪 **Session invalidation** → logout clears the session cart and calls `session.invalidate()`.
+For local public-key authentication, add `&allowPublicKeyRetrieval=true` to DB_URL. Remote database connections require appropriate TLS configuration. Switching databases creates a separate dataset; it does not import existing H2 purchases.
 
-### Stretch goals implemented
-- 🌱 **Sustainability points** — each buyer earns +10 points per item rehomed, shown on their profile.
-- 💸 **Wallet transfer** — money moves from the buyer's wallet to the seller's wallet at checkout.
+## Demo accounts
 
----
+All starter accounts use password `password`. No account receives marketplace money during signup or login.
 
-## 🧰 Tech stack
-- **Java 17**, **Servlet API 4.0** (`javax.servlet`)
-- **Apache Tomcat 9** — *embedded*, so there's nothing extra to install or configure
-- **JDBC** with **H2** by default (zero-install, MySQL-compatible) or **MySQL 8** (see below)
-- **JSP + JSTL**, **HTML/CSS/Bootstrap 5**
-- **Maven** (via the bundled wrapper — no separate Maven install needed)
-
----
-
-## 🚀 How to run
-
-### Prerequisite
-- **JDK 17** installed (e.g. [Eclipse Temurin 17](https://adoptium.net/temurin/releases/?version=17)).
-  Everything else (Tomcat, Maven, the database) is bundled or downloaded automatically.
-
-### Start it
-On **Windows**, just double-click **`run.cmd`**, or from a terminal:
-
-```bash
-run.cmd
-```
-
-On **macOS/Linux** (or Git Bash):
-
-```bash
-./mvnw -q compile exec:java
-```
-
-Then open **<http://localhost:8080/>**. The database is created and seeded automatically on
-first launch. Press **Ctrl+C** to stop.
-
-### Demo accounts
-Password for all three is `password`:
-
-| Email | Starting wallet |
+| Account | Role |
 | --- | --- |
-| `asha@campus.edu` | ₹5000 |
-| `rahul@campus.edu` | ₹3000 |
-| `neha@campus.edu` | ₹1500 |
+| asha@campus.edu | Administrator |
+| rahul@campus.edu | Student |
+| neha@campus.edu | Student |
 
-You can also register a new account (starts with a ₹2000 wallet).
+Add another student's item as a guest, log in, choose UPI or net banking, and inspect the payment reference in transaction history.
 
-### Try the full flow
-1. **Without logging in**, add an item to your cart (it's saved in a cookie).
-2. **Log in** — notice the cart follows you in (cookie → session migration).
-3. **Checkout** — your wallet is debited, the seller is credited, and the sale appears under **History**.
+## Architecture
 
----
+Browser (HTML/CSS/Bootstrap/JSP) → Servlets and session/CSRF filter → Checkout service / DAOs → JDBC → MySQL or H2.
 
-## 🗄️ Using MySQL instead of H2 (optional)
-The brief names MySQL; the app speaks plain JDBC so it runs on either. To switch:
-
-1. Install MySQL and note your `root` password.
-2. Open [`src/main/resources/db.properties`](src/main/resources/db.properties), comment out the
-   four H2 lines, and uncomment the four MySQL lines (set your password). The database and tables
-   are created automatically on first run.
-3. Start the app as usual.
-
-The portable schema lives in [`src/main/resources/schema.sql`](src/main/resources/schema.sql).
-
----
-
-## 🧱 Database schema
-
-| Table | Key fields |
+| Table | Stores |
 | --- | --- |
-| `students` | student_id, name, email, password (SHA-256), wallet_balance, sustainability_points |
-| `listings` | listing_id, seller_id, title, description, category, price, item_condition, status, created_at |
-| `cart_items` | cart_id, **session_id**, listing_id, added_at |
-| `transactions` | txn_id, buyer_id, listing_id, amount, txn_date |
+| students | Accounts, phone/email contact, password hashes, roles and sustainability points |
+| listings | Seller-owned inventory and status |
+| listing_images | Up to three seller-uploaded product-image paths |
+| cart_items | Session-linked cart entries |
+| transactions | Purchases, amounts, payment method, reference, status and terms acceptance |
+| waitlist | Students waiting for an unavailable listing |
+| notifications | Availability and checkout-conflict alerts |
+| reviews | One verified rating/review per completed transaction |
+| catalog_updates | One-time catalog installation marker |
 
----
+## Verification and documentation
 
-## 📁 Project structure
-```
-src/main/java/com/campusmarket/
-├── Main.java                 # Embedded Tomcat launcher
-├── db/     Db, DbBootstrap   # JDBC connection + schema/seed on startup
-├── model/  Student, Listing, TransactionView
-├── dao/    StudentDao, ListingDao, CartDao, TransactionDao
-├── service/CheckoutService   # Atomic wallet+transaction checkout
-├── util/   PasswordUtil, CookieUtil
-└── web/    Servlets + CommonAttributesFilter + Web helper
-src/main/resources/           # db.properties, schema.sql
-src/main/webapp/              # index.jsp, WEB-INF/web.xml, WEB-INF/views/*.jsp, css/
-```
+Run `mvnw.cmd test` on Windows or `sh mvnw test` elsewhere. Tests use an isolated in-memory database. GitHub Actions runs tests and packaging on Java 17.
 
-See [`docs/REPORT.md`](docs/REPORT.md) for the full design write-up (problem statement,
-objectives, design decisions, and how each requirement is met).
+- [Validation results](docs/VALIDATION.md)
+- [Project report and ER diagram](docs/REPORT.md)
+- [Presentation demonstration guide](docs/DEMO.md)
+- [Presentation deck](docs/CampusMarket-Presentation.pptx)
+- [Photo sources](docs/IMAGE-SOURCES.md)
+- [Generated product-image notes](docs/GENERATED-IMAGES.md)
+
+The Node 18+ HTTP checker is `tools/smoke-test.mjs`. Set TEST_BASE_URL to an app using a disposable database: it creates test users, listings and purchases.
+
+## Replit
+
+Import the GitHub repository into Replit and press **Run**. The included `.replit` and `replit.nix` files install Java 17, run Maven and expose port 3000. For a deployment, configure a persistent MySQL database through the `DB_DRIVER`, `DB_URL`, `DB_USER` and `DB_PASSWORD` secrets. The default H2 file and uploaded seller pictures are suitable for a workspace demo, but an autoscale deployment can replace its local filesystem between releases.
+
+## Scope
+
+The checkout is an academic UPI/net-banking gateway simulation: it validates the selected method and records a completed payment reference, but it does not contact a bank or collect passwords, OTPs or account numbers. Connecting a real gateway requires a merchant account, server-side API credentials, signed webhooks, refunds and compliance work. Seller uploads are stored locally and excluded from Git; bundled catalog photos remain in the repository. Student email ownership, pickup coordination and rate limiting remain future work.
+
+GitHub hosts source code. GitHub Pages cannot run this Java backend; public hosting requires a Java server and database. Local data and credentials are excluded from the repository.

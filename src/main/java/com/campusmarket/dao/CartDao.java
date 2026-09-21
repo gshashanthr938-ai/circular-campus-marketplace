@@ -72,7 +72,7 @@ public class CartDao {
                 + "FROM cart_items ci "
                 + "JOIN listings l ON l.listing_id = ci.listing_id "
                 + "JOIN students s ON s.student_id = l.seller_id "
-                + "WHERE ci.session_id = ? AND l.status = 'AVAILABLE' "
+                + "WHERE ci.session_id = ? "
                 + "ORDER BY ci.added_at";
         try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, sessionId);

@@ -27,7 +27,11 @@ public class DbBootstrap implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             createSchema();
+            SchemaMigration.run();
             seedIfEmpty();
+            SchemaMigration.run();
+            Catalog.install();
+            Catalog.applyMissingImages();
             System.out.println("[DbBootstrap] Database ready.");
         } catch (Exception e) {
             throw new RuntimeException("Database initialisation failed", e);
@@ -53,9 +57,9 @@ public class DbBootstrap implements ServletContextListener {
             }
             System.out.println("[DbBootstrap] Seeding demo data...");
 
-            long asha  = insertStudent(c, "Asha Menon",    "asha@campus.edu",  "password", 5000.00);
-            long rahul = insertStudent(c, "Rahul Verma",   "rahul@campus.edu", "password", 3000.00);
-            long neha  = insertStudent(c, "Neha Gupta",    "neha@campus.edu",  "password", 1500.00);
+            long asha  = insertStudent(c, "Asha Menon",    "asha@campus.edu",  "+91 90000 10001", "password");
+            long rahul = insertStudent(c, "Rahul Verma",   "rahul@campus.edu", "+91 90000 10002", "password");
+            long neha  = insertStudent(c, "Neha Gupta",    "neha@campus.edu",  "+91 90000 10003", "password");
 
             insertListing(c, asha,  "Data Structures Textbook (Cormen)", "Barely used, no markings.",
                     "Books", 450.00, "Like New");
@@ -80,15 +84,16 @@ public class DbBootstrap implements ServletContextListener {
         }
     }
 
-    private long insertStudent(Connection c, String name, String email,
-                               String plainPassword, double balance) throws Exception {
-        String sql = "INSERT INTO students(name, email, password, wallet_balance, sustainability_points) "
-                + "VALUES (?,?,?,?,0)";
+    private long insertStudent(Connection c, String name, String email, String phone,
+                               String plainPassword) throws Exception {
+        String sql = "INSERT INTO students(name, email, phone, password, wallet_balance, sustainability_points) "
+                + "VALUES (?,?,?,?,?,0)";
         try (PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, email);
-            ps.setString(3, PasswordUtil.hash(plainPassword));
-            ps.setDouble(4, balance);
+            ps.setString(3, phone);
+            ps.setString(4, PasswordUtil.hash(plainPassword));
+            ps.setBigDecimal(5, java.math.BigDecimal.ZERO);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 keys.next();

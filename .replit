@@ -1,0 +1,11 @@
+entrypoint = "pom.xml"
+run = "chmod +x mvnw && PORT=3000 ./mvnw -q compile exec:java"
+
+[deployment]
+build = "chmod +x mvnw && ./mvnw -q -DskipTests package"
+run = "./mvnw -q compile exec:java"
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3000
+externalPort = 80

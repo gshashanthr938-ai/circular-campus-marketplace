@@ -6,7 +6,7 @@
         <span class="hero-eyebrow">&#128081; Student-to-student marketplace</span>
         <h1>Everything students need,<br><span class="grad">in one campus place.</span></h1>
         <p>Buy, sell and discover second-hand books, gadgets and hostel essentials from students
-           around you &mdash; and pay instantly from your in-app wallet.</p>
+           around you &mdash; and check out using UPI or net banking.</p>
         <div class="hero-cta">
             <a class="btn btn-primary btn-lg" href="#listings">Browse items</a>
             <a class="btn btn-accent btn-lg" href="${ctx}/sell">Sell an item</a>
@@ -27,22 +27,13 @@
         <p>Jump straight to what you need this semester</p>
     </div>
     <div class="cat-grid">
-        <a class="cat-tile" href="${ctx}/browse?category=Books">
-            <div class="cat-ico"><img src="${ctx}/img/ic-books.svg" alt=""></div>
-            <h5>Books</h5><p>Textbooks, novels & study material</p>
-        </a>
-        <a class="cat-tile" href="${ctx}/browse?category=Electronics">
-            <div class="cat-ico"><img src="${ctx}/img/ic-electronics.svg" alt=""></div>
-            <h5>Electronics</h5><p>Calculators, gadgets & devices</p>
-        </a>
-        <a class="cat-tile" href="${ctx}/browse?category=Furniture">
-            <div class="cat-ico"><img src="${ctx}/img/ic-furniture.svg" alt=""></div>
-            <h5>Furniture</h5><p>Tables, chairs & storage</p>
-        </a>
-        <a class="cat-tile" href="${ctx}/browse?category=Hostel Essentials">
-            <div class="cat-ico"><img src="${ctx}/img/ic-hostel.svg" alt=""></div>
-            <h5>Hostel Essentials</h5><p>Lamps, mugs & daily needs</p>
-        </a>
+        <c:forEach var="entry" items="${categoryImages}">
+            <c:url var="categoryUrl" value="/browse"><c:param name="category" value="${entry.key}"/></c:url>
+            <a class="cat-tile photo-category" href="${categoryUrl}#listings">
+                <img src="${ctx}/img/photos/${entry.value}.jpg" alt="" loading="lazy">
+                <h5><c:out value="${entry.key}"/></h5><p>Explore collection &rarr;</p>
+            </a>
+        </c:forEach>
     </div>
 </section>
 
@@ -61,14 +52,14 @@
 <!-- ===== FILTER + LISTINGS ===== -->
 <section class="section" id="listings">
     <div class="section-head left">
-        <h2>Featured listings</h2>
-        <p>Recently listed items from students on campus</p>
+        <h2>Find your next campus essential</h2>
+        <p>Browse books, everyday supplies, gadgets and more.</p>
     </div>
 
     <form class="filter-bar row g-2 align-items-end mb-4" method="get" action="${ctx}/browse">
         <div class="col-md-5">
             <label class="form-label">Search</label>
-            <input type="text" name="search" class="form-control" placeholder="e.g. calculator, textbook"
+            <input type="text" name="search" class="form-control" placeholder="Search headphones, pencils, books..."
                    value="<c:out value='${search}'/>">
         </div>
         <div class="col-md-3">
@@ -76,7 +67,7 @@
             <select name="category" class="form-select">
                 <option value="">All categories</option>
                 <c:forEach var="cat" items="${categories}">
-                    <option value="${cat}" ${cat == selectedCategory ? 'selected' : ''}>${cat}</option>
+                    <option value="<c:out value='${cat}'/>" ${cat == selectedCategory ? 'selected' : ''}><c:out value="${cat}"/></option>
                 </c:forEach>
             </select>
         </div>
@@ -99,21 +90,23 @@
                 <c:forEach var="l" items="${listings}">
                     <div class="product-card">
                         <div class="product-img">
-                            <img src="${ctx}/img/${l.image}" alt="<c:out value='${l.title}'/>">
-                            <span class="cond-badge cond-${l.conditionClass}">${l.condition}</span>
-                            <span class="wish">
+                            <img loading="lazy" src="${ctx}/img/${l.image}" alt="<c:out value='${l.title}'/>">
+                            <span class="cond-badge cond-${l.conditionClass}"><c:out value="${l.condition}"/></span>
+                            <span class="wish" aria-hidden="true">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
                                 </svg>
                             </span>
                         </div>
                         <div class="product-body">
-                            <span class="cat-chip">${l.category}</span>
+                            <span class="cat-chip"><c:out value="${l.category}"/></span>
                             <a class="product-title" href="${ctx}/listing?id=${l.id}"><c:out value="${l.title}"/></a>
                             <div class="seller">by <c:out value="${l.sellerName}"/></div>
+                            <div class="rating-line"><c:choose><c:when test="${l.reviewCount > 0}">&#9733; <fmt:formatNumber value="${l.averageRating}" maxFractionDigits="1"/> · ${l.reviewCount} review${l.reviewCount == 1 ? '' : 's'}</c:when><c:otherwise>No reviews yet</c:otherwise></c:choose></div>
                             <div class="price-row">
                                 <span class="price">&#8377;<fmt:formatNumber value="${l.price}" maxFractionDigits="0"/></span>
                                 <form method="post" action="${ctx}/cart">
+<input type="hidden" name="csrfToken" value="${csrfToken}">
                                     <input type="hidden" name="action" value="add">
                                     <input type="hidden" name="id" value="${l.id}">
                                     <input type="hidden" name="back" value="/browse#listings">
@@ -144,14 +137,13 @@
         <div class="feature">
             <div class="fico"><img src="${ctx}/img/ic-shield.svg" alt=""></div>
             <h4>A trusted campus network</h4>
-            <p>Everyone is a verified student account. Deals happen within your own campus community,
-               so pickups are simple and safe.</p>
+            <p>Connect with other students through their marketplace accounts. Arrange a pickup on campus,
+               and check the item together before taking it home.</p>
         </div>
         <div class="feature">
             <div class="fico"><img src="${ctx}/img/ic-wallet.svg" alt=""></div>
-            <h4>Instant in-app wallet</h4>
-            <p>Skip the cash. Pay from your wallet at checkout and money moves straight to the seller
-               &mdash; every purchase recorded in your history.</p>
+            <h4>UPI &amp; net banking</h4>
+            <p>Choose a familiar digital payment method at checkout, with a payment reference recorded in your history.</p>
         </div>
     </div>
 </section>
@@ -175,8 +167,8 @@
         </div>
         <div class="step">
             <div class="num">3</div>
-            <h5>Checkout from wallet</h5>
-            <p>Pay instantly &mdash; your wallet is debited and the seller is credited.</p>
+            <h5>Choose payment</h5>
+            <p>Complete checkout with UPI or net banking and receive a transaction reference.</p>
         </div>
         <div class="step">
             <div class="num">4</div>

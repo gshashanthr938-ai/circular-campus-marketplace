@@ -3,12 +3,15 @@ target/
 
 # Local H2 database files (the app re-creates + re-seeds these on first run)
 data/
+src/main/webapp/img/uploads/*
+!src/main/webapp/img/uploads/.gitkeep
 
 # Logs
 *.log
 
 # Embedded Tomcat work dir
 tomcat/
+.codex-deck-review*/
 
 # IDEs
 .idea/
@@ -21,3 +24,10 @@ tomcat/
 # OS
 Thumbs.db
 .DS_Store
+
+# Secrets and unrelated coursework
+.env
+.env.*
+!.env.example
+*.local.properties
+wtt-lab/

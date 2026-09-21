@@ -41,6 +41,7 @@ public class ListingDetailServlet extends HttpServlet {
         if (me != null) {
             inCart = cartDao.contains(Web.cartSid(req), id);
             req.setAttribute("ownListing", me.getId() == listing.getSellerId());
+            req.setAttribute("waitlisted", new com.campusmarket.dao.WaitlistDao().contains(id, me.getId()));
         } else {
             inCart = CookieUtil.parseIds(CookieUtil.get(req, CookieUtil.GUEST_CART)).contains(id);
             req.setAttribute("ownListing", false);
@@ -48,6 +49,10 @@ public class ListingDetailServlet extends HttpServlet {
 
         req.setAttribute("listing", listing);
         req.setAttribute("inCart", inCart);
+        req.setAttribute("reviews", new com.campusmarket.dao.ReviewDao().forListing(id));
+        java.util.List<String> images=new com.campusmarket.dao.ListingImageDao().forListing(id);
+        if(images.isEmpty())images=java.util.List.of(listing.getImage());
+        req.setAttribute("listingImages",images);
         Web.render(req, resp, "listing-detail.jsp");
     }
 

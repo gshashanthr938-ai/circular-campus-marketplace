@@ -69,7 +69,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
     x: M, y: 2.15, w: 10.5, h: 2.1, fontFace: SERIF, fontSize: 60, bold: true,
     color: WHITE, lineSpacingMultiple: 0.95, isTextBox: true, margin: 0,
   });
-  s.addText("Resale, Cart & Wallet  \u2014  buy and sell within campus, sustainably.", {
+  s.addText("Resale, Cart & Payments  \u2014  buy and sell within campus, safely.", {
     x: M, y: 4.35, w: 10.5, h: 0.5, fontFace: SANS, fontSize: 19, color: MOSS_LT, italic: true, isTextBox: true, margin: 0,
   });
   // tech chips
@@ -84,7 +84,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   s.addText("Presented by:  ______________________     \u00B7     Roll no: __________", {
     x: M, y: 6.5, w: 11, h: 0.4, fontFace: SANS, fontSize: 13, color: "7E9576", isTextBox: true, margin: 0,
   });
-  s.addNotes("Introduce the project: a peer-to-peer campus resale marketplace built on Java Servlets, demonstrating cookies vs sessions, JDBC persistence, and an in-app wallet.");
+  s.addNotes("Introduce the project: a peer-to-peer campus resale marketplace built on Java Servlets, demonstrating cookies vs sessions, JDBC persistence, and UPI/net-banking checkout.");
 })();
 
 // =====================================================================
@@ -108,7 +108,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
     s.addText(it[1], { x: x + 0.4, y: 3.65, w: cw - 0.8, h: 0.7, fontFace: SERIF, fontSize: 19, bold: true, color: FOREST, isTextBox: true, margin: 0 });
     s.addText(it[2], { x: x + 0.4, y: 4.35, w: cw - 0.8, h: 1.4, fontFace: SANS, fontSize: 14.5, color: SLATE, lineSpacingMultiple: 1.05, isTextBox: true, margin: 0 });
   });
-  s.addText("Our answer: a campus-specific marketplace that lets you browse as a guest and pay from an in-app wallet.", {
+  s.addText("Our answer: a campus-specific marketplace that lets you browse as a guest and pay using UPI or net banking.", {
     x: M, y: 6.25, w: W - 2 * M, h: 0.5, fontFace: SANS, fontSize: 15, italic: true, color: FOREST, isTextBox: true, margin: 0,
   });
 })();
@@ -122,13 +122,13 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   kicker(s, "Our unique selling point", M, 0.7, MOSS_LT);
   s.addText([
     { text: "Shop as a guest, keep your cart when you sign in, ", options: { color: WHITE } },
-    { text: "and pay from a real in-app wallet", options: { color: AMBER } },
+    { text: "and check out with UPI or net banking", options: { color: AMBER } },
     { text: " \u2014 where reusing stuff earns you rewards.", options: { color: WHITE } },
   ], { x: M, y: 1.2, w: W - 2 * M, h: 2.3, fontFace: SERIF, fontSize: 33, bold: true, lineSpacingMultiple: 1.05, isTextBox: true, margin: 0 });
 
   const pill = [
     ["\uD83C\uDF6A", "Cookie \u2192 session", "Cart follows you from guest to logged-in \u2014 nothing lost."],
-    ["\uD83D\uDCB0", "Wallet economy", "Real money moves from buyer to seller at checkout."],
+    ["\uD83D\uDCB3", "Payment choice", "Students select UPI or net banking at checkout."],
     ["\uD83C\uDF31", "Green rewards", "Every item you rehome earns sustainability points."],
   ];
   const cw = (W - 2 * M - 2 * 0.4) / 3;
@@ -152,7 +152,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   const mods = [
     ["\uD83D\uDCE6", "Listings", "Create, edit and remove a resale listing with category, price and condition."],
     ["\uD83D\uDD0D", "Browse & Search", "Filter by text, category and max price. Open to guests, with a cookie-based \u201Crecently viewed\u201D strip."],
-    ["\uD83D\uDED2", "Cart & Wallet", "A session cart and a checkout that deducts your in-app wallet balance."],
+    ["\uD83D\uDED2", "Cart & Payments", "A session cart with UPI and net-banking payment references."],
     ["\uD83D\uDCDC", "Transaction History", "Separate buyer (purchases) and seller (sales) views of every deal."],
   ];
   const cw = (W - 2 * M - 0.4) / 2, ch = 1.95;
@@ -176,10 +176,10 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   title(s, "Why ours goes further");
   const rows = [
     ["\uD83C\uDF6A", "Guest cart \u2192 account migration", "Add items without logging in (saved in a cookie); the moment you sign in they move into your session. The exact cookies-vs-sessions concept, shown as a real benefit."],
-    ["\uD83D\uDCB0", "A real wallet economy", "Checkout actually transfers money from the buyer\u2019s wallet to the seller\u2019s \u2014 atomically, all-or-nothing. Not a fake \u201Corder placed\u201D button."],
+    ["\uD83D\uDCB0", "Atomic digital checkout", "The first confirmed UPI or net-banking checkout claims the item; competing buyers are waitlisted."],
     ["\uD83C\uDF31", "Sustainability points", "Every rehomed item earns green points on your profile \u2014 a unique hook tied to the circular-economy theme."],
-    ["\u26A1", "Zero-setup, one-click run", "Runs with a single command (embedded Tomcat + bundled database); switches to MySQL with one config line."],
-    ["\uD83D\uDD12", "Real security touches", "SHA-256 password hashing, PreparedStatements (no SQL injection), server-side validation, session invalidation on logout."],
+    ["\uD83D\uDEE1", "Seller trust and protected contact", "Show membership date, sales and ratings before checkout; release email and phone only to the completed buyer."],
+    ["\uD83D\uDD12", "Real security touches", "Salted PBKDF2 password hashing, PreparedStatements, CSRF tokens, server-side validation and session invalidation."],
   ];
   let y = 1.95;
   const rh = 0.98;
@@ -220,7 +220,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   s.addText([
     { text: "Logged-in identity  (HttpSession)", options: { bullet: true, breakLine: true } },
     { text: "Cart in DB, keyed by session id", options: { bullet: true, breakLine: true } },
-    { text: "Wallet & checkout \u2014 trusted, server-side", options: { bullet: true, breakLine: true } },
+    { text: "Checkout and stock control \u2014 trusted, server-side", options: { bullet: true, breakLine: true } },
     { text: "Cleared on logout via session.invalidate()", options: { bullet: true, breakLine: false } },
   ], { x: rx + 0.5, y: 3.55, w: 4.5, h: 2.3, fontFace: SANS, fontSize: 14.5, color: SLATE, paraSpaceAfter: 10, isTextBox: true, margin: 0 });
 
@@ -273,7 +273,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   kicker(s, "Data model");
   title(s, "Four tables, fully related");
   const tables = [
-    ["students", ["student_id (PK)", "name, email", "password (SHA-256)", "wallet_balance", "sustainability_points"]],
+    ["students", ["student_id (PK)", "name, email", "password (PBKDF2)", "role", "sustainability_points"]],
     ["listings", ["listing_id (PK)", "seller_id \u2192 students", "title, category, price", "item_condition", "status (AVAILABLE/SOLD)"]],
     ["cart_items", ["cart_id (PK)", "session_id", "listing_id \u2192 listings", "added_at"]],
     ["transactions", ["txn_id (PK)", "buyer_id \u2192 students", "listing_id \u2192 listings", "amount, txn_date"]],
@@ -304,10 +304,10 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   const steps = [
     ["1", "Browse as guest", "Filter listings, add one to the cart \u2014 no login."],
     ["2", "Log in", "The guest cart migrates into your account."],
-    ["3", "Review cart", "See items + your wallet balance."],
-    ["4", "Checkout", "Wallet debited, seller credited."],
+    ["3", "Review cart", "Choose UPI or net banking."],
+    ["4", "Checkout", "Payment method and reference recorded."],
     ["5", "History", "Purchase appears under \u201Cbought.\u201D"],
-    ["6", "Profile", "Wallet down, sustainability points up."],
+    ["6", "Profile", "Sustainability points increase after reuse."],
   ];
   const cw = (W - 2 * M - 2 * 0.4) / 3, ch = 1.75;
   steps.forEach((st, i) => {
@@ -347,7 +347,7 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   s.addText("Circular Campus Marketplace", { x: rx + 0.4, y: 2.3, w: cw - 0.8, h: 0.5, fontFace: SERIF, fontSize: 19, bold: true, color: WHITE, isTextBox: true, margin: 0 });
   s.addText([
     { text: "Full guest browsing + guest cart", options: { bullet: { code: "2714" }, breakLine: true } },
-    { text: "Real wallet: money moves buyer \u2192 seller", options: { bullet: { code: "2714" }, breakLine: true } },
+    { text: "UPI/net-banking reference recorded with each order", options: { bullet: { code: "2714" }, breakLine: true } },
     { text: "Cart migrates cookie \u2192 session on login", options: { bullet: { code: "2714" }, breakLine: true } },
     { text: "One-click run; MySQL by one config line", options: { bullet: { code: "2714" }, breakLine: true } },
     { text: "Hashed passwords + PreparedStatements", options: { bullet: { code: "2714" }, breakLine: false } },
@@ -362,8 +362,8 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   s.background = { color: CREAM };
   kicker(s, "What's next");
   title(s, "Roadmap");
-  const done = ["4 modules working end-to-end", "Cookie \u2192 session cart migration", "Wallet + atomic checkout", "Sustainability points"];
-  const next = ["Item photos & image upload", "Ratings / reviews per sale", "Search pagination", "bcrypt hashing + CSRF tokens"];
+  const done = ["Core modules working end-to-end", "UPI/net banking + purchase terms", "Seller trust + protected pickup contact", "Reviews, moderation and waitlist alerts"];
+  const next = ["Verified campus email", "Pickup chat or meeting scheduler", "Cloud image storage", "Live payment gateway after merchant approval"];
   const cw = (W - 2 * M - 0.5) / 2;
   card(s, M, 2.05, cw, 4.0, WHITE);
   iconCircle(s, M + 0.4, 2.35, 0.7, "\u2714", MOSS);
@@ -388,11 +388,11 @@ function kicker(slide, text, x = M, y = 0.42, color = MOSS) {
   s.background = { color: FOREST_DK };
   s.addText("\u267B", { x: -0.8, y: 3.2, w: 5, h: 5, fontSize: 260, color: "1F3F1B", align: "center", valign: "middle", isTextBox: true, margin: 0 });
   s.addText("Thank you", { x: M, y: 2.5, w: 11, h: 1.2, fontFace: SERIF, fontSize: 56, bold: true, color: WHITE, isTextBox: true, margin: 0 });
-  s.addText("Circular Campus Marketplace  \u2014  Resale, Cart & Wallet", { x: M, y: 3.8, w: 11, h: 0.5, fontFace: SANS, fontSize: 18, color: MOSS_LT, isTextBox: true, margin: 0 });
+  s.addText("Circular Campus Marketplace  \u2014  Resale, Cart & Payments", { x: M, y: 3.8, w: 11, h: 0.5, fontFace: SANS, fontSize: 18, color: MOSS_LT, isTextBox: true, margin: 0 });
   s.addText("Questions & live demo welcome.", { x: M, y: 4.35, w: 11, h: 0.5, fontFace: SANS, fontSize: 15, italic: true, color: "7E9576", isTextBox: true, margin: 0 });
   s.addText("Repo:  github.com/______________/circular-campus-marketplace", { x: M, y: 6.4, w: 11, h: 0.4, fontFace: SANS, fontSize: 13, color: "6E8767", isTextBox: true, margin: 0 });
 })();
 
-pres.writeFile({ fileName: "C:/Hero/WEDASS/docs/Circular-Campus-Marketplace.pptx" }).then((f) => {
+pres.writeFile({ fileName: "C:/Hero/WEDASS/docs/CampusMarket-Presentation.pptx" }).then((f) => {
   console.log("WROTE", f);
 });

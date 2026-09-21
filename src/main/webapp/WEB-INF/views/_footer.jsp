@@ -9,7 +9,7 @@
                 </div>
                 <p style="max-width:22rem;color:#9aa0c8;font-size:14px;">
                     A student-to-student resale marketplace &mdash; buy, sell and discover second-hand
-                    books, gadgets and hostel essentials across your campus, and pay from an in-app wallet.
+                    books, gadgets and hostel essentials across your campus, with UPI or net-banking checkout.
                 </p>
             </div>
             <div>

@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/** JDBC data-access for the students table (users + wallet). */
+/** JDBC data-access for student accounts. */
 public class StudentDao {
 
     private Student map(ResultSet rs) throws SQLException {
@@ -19,8 +19,11 @@ public class StudentDao {
         s.setId(rs.getLong("student_id"));
         s.setName(rs.getString("name"));
         s.setEmail(rs.getString("email"));
+        s.setPhone(rs.getString("phone"));
+        s.setCreatedAt(rs.getTimestamp("created_at"));
         s.setWalletBalance(rs.getBigDecimal("wallet_balance"));
         s.setSustainabilityPoints(rs.getInt("sustainability_points"));
+        s.setRole(rs.getString("role"));
         return s;
     }
 
@@ -31,7 +34,13 @@ public class StudentDao {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next() && PasswordUtil.matches(plainPassword, rs.getString("password"))) {
-                    return map(rs);
+                    Student student = map(rs);
+                    if (!rs.getString("password").startsWith("pbkdf2$")) {
+                        try (PreparedStatement upgrade=c.prepareStatement("UPDATE students SET password=? WHERE student_id=?")) {
+                            upgrade.setString(1,PasswordUtil.hash(plainPassword)); upgrade.setLong(2,student.getId()); upgrade.executeUpdate();
+                        }
+                    }
+                    return student;
                 }
                 return null;
             }
@@ -64,16 +73,15 @@ public class StudentDao {
         }
     }
 
-    /** Create a new student with a starting wallet balance. Returns the new id. */
-    public long create(String name, String email, String plainPassword, BigDecimal startingBalance) {
-        String sql = "INSERT INTO students(name, email, password, wallet_balance, sustainability_points) "
-                + "VALUES (?,?,?,?,0)";
+    /** Create a new student without issuing marketplace money. Returns the new id. */
+    public long create(String name, String email, String phone, String plainPassword) {
+        String sql = "INSERT INTO students(name,email,phone,password,wallet_balance,sustainability_points) VALUES (?,?,?,?,0,0)";
         try (Connection c = Db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, email);
-            ps.setString(3, PasswordUtil.hash(plainPassword));
-            ps.setBigDecimal(4, startingBalance);
+            ps.setString(3, phone);
+            ps.setString(4, PasswordUtil.hash(plainPassword));
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 keys.next();

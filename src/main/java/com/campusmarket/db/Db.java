@@ -37,17 +37,23 @@ public final class Db {
             throw new RuntimeException("Could not load db.properties", e);
         }
 
-        String driver = p.getProperty("db.driver", "").trim();
+        String driver = setting(p, "db.driver", "DB_DRIVER");
         try {
             Class.forName(driver); // register the JDBC driver
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("JDBC driver not on classpath: " + driver, e);
         }
 
-        url = p.getProperty("db.url", "").trim();
-        user = p.getProperty("db.user", "").trim();
-        password = p.getProperty("db.password", "").trim();
+        url = setting(p, "db.url", "DB_URL");
+        user = setting(p, "db.user", "DB_USER");
+        password = setting(p, "db.password", "DB_PASSWORD");
         loaded = true;
+    }
+
+    private static String setting(Properties p, String key, String env) {
+        String value=System.getProperty(key);
+        if(value==null) value=System.getenv(env);
+        return value==null ? p.getProperty(key, "") : value;
     }
 
     /** @return a fresh JDBC connection to the configured database. */

@@ -12,8 +12,7 @@ import java.util.List;
 /**
  * Handles checkout as a single atomic database transaction:
  *   - totals the session cart,
- *   - checks the buyer's wallet balance,
- *   - moves money buyer -> seller wallets,
+ *   - validates a UPI or net-banking payment choice,
  *   - records a transaction row per item and marks each listing SOLD,
  *   - awards the buyer sustainability points,
  *   - clears the cart.
@@ -44,7 +43,13 @@ public class CheckoutService {
         BigDecimal price;
     }
 
-    public Result checkout(long buyerId, String sessionId) {
+    public Result checkout(long buyerId, String sessionId, String paymentMethod, String paymentDetail,
+                           boolean termsAccepted) {
+        if (!termsAccepted) return new Result(false,
+                "Please read and accept the purchase terms to continue.", BigDecimal.ZERO, 0);
+        String paymentError=validatePayment(paymentMethod,paymentDetail);
+        if(paymentError!=null)return new Result(false,paymentError,BigDecimal.ZERO,0);
+        String paymentReference="CM-"+java.util.UUID.randomUUID().toString().replace("-","").substring(0,16).toUpperCase();
         Connection c = null;
         try {
             c = Db.getConnection();
@@ -62,34 +67,34 @@ public class CheckoutService {
                 total = total.add(r.price);
             }
 
-            // 2. Check wallet balance.
-            BigDecimal wallet = walletOf(c, buyerId);
-            if (wallet.compareTo(total) < 0) {
-                c.rollback();
-                return new Result(false,
-                        "Insufficient wallet balance. Need " + total + ", have " + wallet + ".",
-                        total, rows.size());
-            }
-
-            // 3. Per item: record transaction, mark listing SOLD, pay the seller.
+            // 2. Per item: claim stock and record the confirmed demo payment.
             for (CartRow r : rows) {
-                insertTransaction(c, buyerId, r.listingId, r.price);
-                markSold(c, r.listingId);
-                creditSeller(c, r.sellerId, r.price);
+                markSold(c, r);
+                insertTransaction(c, buyerId, r.listingId, r.price,paymentMethod,paymentReference);
             }
 
-            // 4. Debit buyer wallet + award sustainability points.
-            debitBuyer(c, buyerId, total);
+            // 3. Award sustainability points.
             addPoints(c, buyerId, rows.size() * POINTS_PER_ITEM);
 
-            // 5. Empty the cart.
+            // 4. Empty the cart.
             clearCart(c, sessionId);
 
             c.commit();
             return new Result(true,
-                    "Purchase successful! " + rows.size() + " item(s) for " + total + ".",
+                    "Payment confirmed by " + displayMethod(paymentMethod) + ". Reference " + paymentReference + ".",
                     total, rows.size());
 
+        } catch (IllegalStateException e) {
+            rollbackQuietly(c);
+            new com.campusmarket.dao.WaitlistDao().joinUnavailableItems(buyerId, sessionId);
+            return new Result(false,e.getMessage(),BigDecimal.ZERO,0);
+        } catch (java.sql.SQLException e) {
+            rollbackQuietly(c);
+            if ("40001".equals(e.getSQLState())) {
+                new com.campusmarket.dao.WaitlistDao().joinUnavailableItems(buyerId, sessionId);
+                return new Result(false,"Another student completed checkout first. You were added to the waitlist.",BigDecimal.ZERO,0);
+            }
+            throw new RuntimeException("Checkout failed",e);
         } catch (Exception e) {
             rollbackQuietly(c);
             throw new RuntimeException("Checkout failed", e);
@@ -99,73 +104,63 @@ public class CheckoutService {
     }
 
     private List<CartRow> loadCart(Connection c, long buyerId, String sessionId) throws Exception {
-        String sql = "SELECT l.listing_id, l.seller_id, l.price "
+        String sql = "SELECT l.listing_id, l.seller_id, l.price, l.status "
                 + "FROM cart_items ci JOIN listings l ON l.listing_id = ci.listing_id "
-                + "WHERE ci.session_id = ? AND l.status = 'AVAILABLE' AND l.seller_id <> ?";
+                + "WHERE ci.session_id = ? ORDER BY l.listing_id";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, sessionId);
-            ps.setLong(2, buyerId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 List<CartRow> out = new ArrayList<>();
+                java.util.Set<Long> seen=new java.util.HashSet<>();
                 while (rs.next()) {
                     CartRow r = new CartRow();
                     r.listingId = rs.getLong("listing_id");
                     r.sellerId = rs.getLong("seller_id");
                     r.price = rs.getBigDecimal("price");
-                    out.add(r);
+                    if (!"AVAILABLE".equals(rs.getString("status")) || r.sellerId==buyerId) throw new IllegalStateException("An item is unavailable or belongs to you. Please remove it from the cart.");
+                    if(seen.add(r.listingId)) out.add(r);
                 }
                 return out;
             }
         }
     }
 
-    private BigDecimal walletOf(Connection c, long studentId) throws Exception {
-        try (PreparedStatement ps = c.prepareStatement(
-                "SELECT wallet_balance FROM students WHERE student_id=?")) {
-            ps.setLong(1, studentId);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getBigDecimal(1);
-            }
-        }
-    }
-
-    private void insertTransaction(Connection c, long buyerId, long listingId, BigDecimal amount)
+    private void insertTransaction(Connection c, long buyerId, long listingId, BigDecimal amount,
+                                   String paymentMethod,String paymentReference)
             throws Exception {
         try (PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO transactions(buyer_id, listing_id, amount) VALUES (?,?,?)")) {
+                "INSERT INTO transactions(buyer_id,listing_id,amount,payment_method,payment_reference,payment_status,terms_accepted_at) VALUES (?,?,?,?,?,'COMPLETED',CURRENT_TIMESTAMP)")) {
             ps.setLong(1, buyerId);
             ps.setLong(2, listingId);
             ps.setBigDecimal(3, amount);
+            ps.setString(4,paymentMethod);
+            ps.setString(5,paymentReference);
             ps.executeUpdate();
         }
     }
 
-    private void markSold(Connection c, long listingId) throws Exception {
+    private void markSold(Connection c, CartRow row) throws Exception {
         try (PreparedStatement ps = c.prepareStatement(
-                "UPDATE listings SET status='SOLD' WHERE listing_id=?")) {
-            ps.setLong(1, listingId);
-            ps.executeUpdate();
+                "UPDATE listings SET status='SOLD' WHERE listing_id=? AND status='AVAILABLE' AND price=? AND seller_id=?")) {
+            ps.setLong(1, row.listingId);
+            ps.setBigDecimal(2,row.price);
+            ps.setLong(3,row.sellerId);
+            if(ps.executeUpdate()!=1) throw new IllegalStateException("An item was sold or changed. Please review your cart.");
         }
     }
 
-    private void creditSeller(Connection c, long sellerId, BigDecimal amount) throws Exception {
-        try (PreparedStatement ps = c.prepareStatement(
-                "UPDATE students SET wallet_balance = wallet_balance + ? WHERE student_id=?")) {
-            ps.setBigDecimal(1, amount);
-            ps.setLong(2, sellerId);
-            ps.executeUpdate();
+    private String validatePayment(String method,String detail) {
+        if("UPI".equals(method)) {
+            return detail!=null&&detail.matches("[A-Za-z0-9._-]{2,}@[A-Za-z]{2,}")?null:"Enter a valid UPI ID, for example name@bank.";
         }
+        if("NET_BANKING".equals(method)) {
+            return java.util.Set.of("SBI","HDFC","ICICI","AXIS","KOTAK","OTHER").contains(detail)?null:"Select a bank for net banking.";
+        }
+        return "Choose UPI or net banking to continue.";
     }
 
-    private void debitBuyer(Connection c, long buyerId, BigDecimal amount) throws Exception {
-        try (PreparedStatement ps = c.prepareStatement(
-                "UPDATE students SET wallet_balance = wallet_balance - ? WHERE student_id=?")) {
-            ps.setBigDecimal(1, amount);
-            ps.setLong(2, buyerId);
-            ps.executeUpdate();
-        }
-    }
+    private String displayMethod(String method){return "UPI".equals(method)?"UPI":"net banking";}
 
     private void addPoints(Connection c, long studentId, int points) throws Exception {
         try (PreparedStatement ps = c.prepareStatement(
