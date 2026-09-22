@@ -9,6 +9,7 @@ public class MarketplaceAnalytics {
     private int listings;
     private int availableListings;
     private int completedTransactions;
+    private int completedHandovers;
     private int waitlistedStudents;
     private int reviewCount;
     private double averageRating;
@@ -24,6 +25,8 @@ public class MarketplaceAnalytics {
     public void setAvailableListings(int availableListings) { this.availableListings = availableListings; }
     public int getCompletedTransactions() { return completedTransactions; }
     public void setCompletedTransactions(int completedTransactions) { this.completedTransactions = completedTransactions; }
+    public int getCompletedHandovers() { return completedHandovers; }
+    public void setCompletedHandovers(int completedHandovers) { this.completedHandovers = completedHandovers; }
     public int getWaitlistedStudents() { return waitlistedStudents; }
     public void setWaitlistedStudents(int waitlistedStudents) { this.waitlistedStudents = waitlistedStudents; }
     public int getReviewCount() { return reviewCount; }
@@ -38,7 +41,7 @@ public class MarketplaceAnalytics {
     public void setPaymentMethods(List<Breakdown> paymentMethods) { this.paymentMethods = paymentMethods; }
 
     /** Conservative classroom estimate: each completed resale avoids 2.5 kg CO2e. */
-    public double getEstimatedCo2SavedKg() { return completedTransactions * 2.5; }
+    public double getEstimatedCo2SavedKg() { return completedHandovers * 2.5; }
 
     public static class Breakdown {
         private final String label;

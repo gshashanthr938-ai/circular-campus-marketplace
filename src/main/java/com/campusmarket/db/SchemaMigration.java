@@ -1,8 +1,11 @@
 package com.campusmarket.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.security.SecureRandom;
 
 /** Idempotent migrations for databases created by older project versions. */
 public final class SchemaMigration {
@@ -19,6 +22,10 @@ public final class SchemaMigration {
             add(st, "ALTER TABLE transactions ADD COLUMN payment_reference VARCHAR(80)");
             add(st, "ALTER TABLE transactions ADD COLUMN payment_status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED'");
             add(st, "ALTER TABLE transactions ADD COLUMN terms_accepted_at TIMESTAMP");
+            add(st, "ALTER TABLE transactions ADD COLUMN handover_code VARCHAR(6)");
+            add(st, "ALTER TABLE transactions ADD COLUMN fulfillment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PICKUP'");
+            add(st, "ALTER TABLE transactions ADD COLUMN pickup_completed_at TIMESTAMP");
+            backfillHandoverCodes(c);
             st.executeUpdate("UPDATE students SET wallet_balance=0");
             st.executeUpdate("UPDATE students SET phone='+91 90000 10001' WHERE email='asha@campus.edu' AND phone IS NULL");
             st.executeUpdate("UPDATE students SET phone='+91 90000 10002' WHERE email='rahul@campus.edu' AND phone IS NULL");
@@ -30,6 +37,20 @@ public final class SchemaMigration {
             st.executeUpdate("UPDATE listings SET image_path='generated/adjustable-led-lamp.png' WHERE title='Table Lamp (LED)' AND image_path IS NULL");
             st.executeUpdate("UPDATE listings SET image_path='generated/engineering-drawing-kit.png' WHERE title='Engineering Drawing Kit' AND image_path IS NULL");
             st.executeUpdate("UPDATE listings SET image_path='generated/bluetooth-headphones.png' WHERE title='Bluetooth Headphones' AND image_path IS NULL");
+        }
+    }
+
+    private static void backfillHandoverCodes(Connection c) throws SQLException {
+        SecureRandom random = new SecureRandom();
+        try (PreparedStatement find = c.prepareStatement("SELECT txn_id FROM transactions WHERE handover_code IS NULL");
+             ResultSet rs = find.executeQuery();
+             PreparedStatement update = c.prepareStatement("UPDATE transactions SET handover_code=? WHERE txn_id=?")) {
+            while (rs.next()) {
+                update.setString(1, String.format("%06d", random.nextInt(1_000_000)));
+                update.setLong(2, rs.getLong(1));
+                update.addBatch();
+            }
+            update.executeBatch();
         }
     }
 

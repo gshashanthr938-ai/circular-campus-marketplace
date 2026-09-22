@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class CheckoutService {
 
     /** +10 sustainability points per item resold (stretch-goal feature). */
     private static final int POINTS_PER_ITEM = 10;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static class Result {
         public final boolean success;
@@ -130,12 +132,13 @@ public class CheckoutService {
                                    String paymentMethod,String paymentReference)
             throws Exception {
         try (PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO transactions(buyer_id,listing_id,amount,payment_method,payment_reference,payment_status,terms_accepted_at) VALUES (?,?,?,?,?,'COMPLETED',CURRENT_TIMESTAMP)")) {
+                "INSERT INTO transactions(buyer_id,listing_id,amount,payment_method,payment_reference,payment_status,terms_accepted_at,handover_code,fulfillment_status) VALUES (?,?,?,?,?,'COMPLETED',CURRENT_TIMESTAMP,?,'AWAITING_PICKUP')")) {
             ps.setLong(1, buyerId);
             ps.setLong(2, listingId);
             ps.setBigDecimal(3, amount);
             ps.setString(4,paymentMethod);
             ps.setString(5,paymentReference);
+            ps.setString(6,String.format("%06d",RANDOM.nextInt(1_000_000)));
             ps.executeUpdate();
         }
     }

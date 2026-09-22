@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS transactions (
     payment_reference VARCHAR(80),
     payment_status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED',
     terms_accepted_at TIMESTAMP,
+    handover_code VARCHAR(6) NOT NULL,
+    fulfillment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PICKUP',
+    pickup_completed_at TIMESTAMP,
     txn_date   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_txn_buyer   FOREIGN KEY (buyer_id)   REFERENCES students(student_id),
     CONSTRAINT fk_txn_listing FOREIGN KEY (listing_id) REFERENCES listings(listing_id)

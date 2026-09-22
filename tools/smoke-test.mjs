@@ -40,9 +40,13 @@ console.log('PASS: CSRF rejection, registration, session renewal, guest cart mig
 await other.request('/sell');await other.request('/sell',{id,title:'Unauthorized change',category:'Books',condition:'Good',price:'1'});
 assert.ok((await buyer.request('/listing?id='+id)).html.includes(title));
 assert.equal((await buyer.request('/checkout',{paymentMethod:'UPI',upiId:'buyer@bank',acceptTerms:'yes'})).status,302);
-const paidHistory=(await buyer.request('/history')).html;assert.ok(paidHistory.includes(title));assert.ok(paidHistory.includes('UPI'));assert.ok(paidHistory.includes('Contact unlocked'));assert.ok(paidHistory.includes('Terms accepted'));assert.ok(paidHistory.includes('Seller'+stamp+'@example.edu'));
+const paidHistory=(await buyer.request('/history')).html;assert.ok(paidHistory.includes(title));assert.ok(paidHistory.includes('UPI'));assert.ok(paidHistory.includes('Contact unlocked'));assert.ok(paidHistory.includes('Terms accepted'));assert.ok(paidHistory.includes('Seller'+stamp+'@example.edu'));assert.ok(paidHistory.includes('Awaiting pickup'));assert.ok(paidHistory.includes('Review unlocks after pickup confirmation'));
+const handoverCode=paidHistory.match(/data-handover-code="(\d{6})"/)?.[1],txnId=paidHistory.match(/data-txn-id="(\d+)"/)?.[1];assert.ok(handoverCode);assert.ok(txnId);
+await seller.request('/history');const wrongCode=handoverCode==='000000'?'999999':'000000';await seller.request('/handover',{txnId,handoverCode:wrongCode});assert.ok((await seller.request('/history')).html.includes('Pickup pending'));
+await seller.request('/handover',{txnId,handoverCode});assert.ok((await seller.request('/history')).html.includes('Delivery confirmed'));
+const completedHistory=(await buyer.request('/history')).html;assert.ok(completedHistory.includes('Handover verified'));assert.ok(completedHistory.includes('Post review'));
 assert.ok((await buyer.request('/cart')).html.includes('Your cart is empty'));
-console.log('PASS: ownership protection, uploaded photo, UPI payment, purchase history, cart clearing');
+console.log('PASS: ownership protection, photo upload, UPI payment, private pickup code, seller handover confirmation, review unlock, cart clearing');
 const raceId=await create('Concurrent-item-'+stamp,100);
 await buyer.request('/cart');await buyer.request('/cart',{action:'add',id:raceId});
 await other.request('/cart');await other.request('/cart',{action:'add',id:raceId});

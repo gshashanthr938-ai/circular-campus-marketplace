@@ -19,6 +19,7 @@ public class ReviewDao {
         if(rating<1||rating>5||comment==null||comment.isBlank()||comment.length()>800)return false;
         String sql="INSERT INTO reviews(txn_id,listing_id,reviewer_id,rating,comment) "
                 + "SELECT t.txn_id,t.listing_id,t.buyer_id,?,? FROM transactions t WHERE t.txn_id=? AND t.buyer_id=? "
+                + "AND t.fulfillment_status='PICKUP_COMPLETED' "
                 + "AND NOT EXISTS(SELECT 1 FROM reviews r WHERE r.txn_id=t.txn_id)";
         try(Connection c=Db.getConnection();PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,rating);ps.setString(2,comment.trim());ps.setLong(3,txnId);ps.setLong(4,buyerId);return ps.executeUpdate()==1;

@@ -1,63 +1,70 @@
 <%@ include file="_header.jsp" %>
 
-<h2 class="mb-3">Transaction History</h2>
+<div class="section-head left history-heading">
+    <div><span class="eyebrow">Safe campus handover</span><h2>Orders &amp; pickups</h2><p>Coordinate, inspect and confirm every exchange in one place.</p></div>
+    <div class="handover-legend"><span>1</span> Pay <i></i><span>2</span> Meet &amp; inspect <i></i><span>3</span> Confirm</div>
+</div>
 
-<div class="row g-4">
-    <div class="col-lg-6">
-        <h5>Items I bought</h5>
+<div class="history-grid">
+    <section>
+        <h4 class="history-title">My purchases <span>${purchases.size()}</span></h4>
         <c:choose>
-            <c:when test="${empty purchases}">
-                <div class="alert alert-light border">No purchases yet.</div>
-            </c:when>
-            <c:otherwise>
-                <table class="table bg-white">
-                    <thead><tr><th>Item</th><th>Seller and pickup contact</th><th class="text-end">Paid</th><th>Payment</th><th>Review</th></tr></thead>
-                    <tbody>
-                    <c:forEach var="t" items="${purchases}">
-                        <tr>
-                            <td><c:out value="${t.listingTitle}"/></td>
-                            <td>
-                                <div class="contact-unlocked"><span>&#10003;</span> Contact unlocked</div>
-                                <strong><c:out value="${t.counterpartyName}"/></strong>
-                                <div class="pickup-contact"><span>&#9993;</span> <c:out value="${t.counterpartyEmail}"/></div>
-                                <div class="pickup-contact"><span>&#9742;</span> <c:out value="${empty t.counterpartyPhone ? 'Not provided' : t.counterpartyPhone}"/></div>
-                            </td>
-                            <td class="text-end">&#8377;<fmt:formatNumber value="${t.amount}" minFractionDigits="2" maxFractionDigits="2"/></td>
-                            <td class="small text-muted"><fmt:formatDate value="${t.txnDate}" pattern="dd MMM, HH:mm"/><br><c:out value="${t.paymentMethod}"/> &middot; <c:out value="${t.paymentReference}"/><br><span class="text-success">Terms accepted</span></td>
-                            <td><c:choose><c:when test="${t.reviewed}"><span class="text-muted small">Reviewed</span></c:when><c:otherwise>
-                              <form method="post" action="${ctx}/review" class="review-form"><input type="hidden" name="csrfToken" value="${csrfToken}"><input type="hidden" name="txnId" value="${t.txnId}"><select name="rating" class="form-select form-select-sm" required><option value="">Stars</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select><input name="comment" class="form-control form-control-sm" maxlength="800" placeholder="How was the item?" required><button class="btn btn-sm btn-primary">Post</button></form>
-                            </c:otherwise></c:choose></td>
-                        </tr>
-                    </c:forEach>
-                    </tbody>
-                </table>
-            </c:otherwise>
+            <c:when test="${empty purchases}"><div class="surface pad text-muted">No purchases yet. Your pickup instructions will appear here.</div></c:when>
+            <c:otherwise><div class="order-stack">
+                <c:forEach var="t" items="${purchases}">
+                    <article class="order-card" data-txn-id="${t.txnId}">
+                        <div class="order-top">
+                            <div><small>Order #${t.txnId}</small><h5><a href="${ctx}/listing?id=${t.listingId}"><c:out value="${t.listingTitle}"/></a></h5></div>
+                            <span class="fulfillment-pill ${t.pickupCompleted ? 'complete' : 'waiting'}">${t.pickupCompleted ? 'Pickup completed' : 'Awaiting pickup'}</span>
+                        </div>
+                        <div class="order-money"><strong>&#8377;<fmt:formatNumber value="${t.amount}" minFractionDigits="2" maxFractionDigits="2"/></strong><span><c:out value="${t.paymentMethod}"/> &middot; <c:out value="${t.paymentReference}"/></span><small><fmt:formatDate value="${t.txnDate}" pattern="dd MMM yyyy, HH:mm"/> &middot; Terms accepted</small></div>
+                        <div class="contact-panel"><div><span class="contact-unlocked">&#10003; Contact unlocked</span><strong><c:out value="${t.counterpartyName}"/></strong></div><div><span>&#9993; <c:out value="${t.counterpartyEmail}"/></span><span>&#9742; <c:out value="${empty t.counterpartyPhone ? 'Not provided' : t.counterpartyPhone}"/></span></div></div>
+                        <c:choose>
+                            <c:when test="${t.pickupCompleted}">
+                                <div class="pickup-complete"><span>&#10003;</span><div><strong>Handover verified</strong><small>Completed <fmt:formatDate value="${t.pickupCompletedAt}" pattern="dd MMM yyyy, HH:mm"/></small></div></div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="pickup-flow">
+                                    <div><b>1</b><span><strong>Meet safely</strong><small>Choose a public campus location.</small></span></div>
+                                    <div><b>2</b><span><strong>Inspect the item</strong><small>Check condition, photos and accessories.</small></span></div>
+                                    <div><b>3</b><span><strong>Share this code</strong><small>Only after you receive the item.</small></span></div>
+                                </div>
+                                <div class="pickup-code-wrap"><span>Your private pickup code</span><strong class="pickup-code" data-handover-code="${t.handoverCode}"><c:out value="${t.handoverCode}"/></strong><small>The seller enters this code to confirm delivery. Keep it private until inspection.</small></div>
+                            </c:otherwise>
+                        </c:choose>
+                        <div class="review-zone">
+                            <c:choose>
+                                <c:when test="${t.reviewed}"><span class="verified-review">&#9733; Verified review submitted</span></c:when>
+                                <c:when test="${not t.pickupCompleted}"><span class="review-locked">Review unlocks after pickup confirmation</span></c:when>
+                                <c:otherwise><form method="post" action="${ctx}/review" class="review-form"><input type="hidden" name="csrfToken" value="${csrfToken}"><input type="hidden" name="txnId" value="${t.txnId}"><select name="rating" class="form-select form-select-sm" required><option value="">Stars</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select><input name="comment" class="form-control form-control-sm" maxlength="800" placeholder="How was the item and seller?" required><button class="btn btn-sm btn-primary">Post review</button></form></c:otherwise>
+                            </c:choose>
+                        </div>
+                    </article>
+                </c:forEach>
+            </div></c:otherwise>
         </c:choose>
-    </div>
-
-    <div class="col-lg-6">
-        <h5>Items I sold</h5>
+    </section>
+    <section>
+        <h4 class="history-title">My sales <span>${sales.size()}</span></h4>
         <c:choose>
-            <c:when test="${empty sales}">
-                <div class="alert alert-light border">No sales yet.</div>
-            </c:when>
-            <c:otherwise>
-                <table class="table bg-white">
-                    <thead><tr><th>Item</th><th>Buyer contact</th><th class="text-end">Received</th><th>Payment</th></tr></thead>
-                    <tbody>
-                    <c:forEach var="t" items="${sales}">
-                        <tr>
-                            <td><c:out value="${t.listingTitle}"/></td>
-                            <td><strong><c:out value="${t.counterpartyName}"/></strong><div class="pickup-contact"><c:out value="${t.counterpartyEmail}"/></div><div class="pickup-contact"><c:out value="${empty t.counterpartyPhone ? 'Not provided' : t.counterpartyPhone}"/></div></td>
-                            <td class="text-end">&#8377;<fmt:formatNumber value="${t.amount}" minFractionDigits="2" maxFractionDigits="2"/></td>
-                            <td class="small text-muted"><fmt:formatDate value="${t.txnDate}" pattern="dd MMM, HH:mm"/><br><c:out value="${t.paymentMethod}"/> &middot; <c:out value="${t.paymentReference}"/></td>
-                        </tr>
-                    </c:forEach>
-                    </tbody>
-                </table>
-            </c:otherwise>
+            <c:when test="${empty sales}"><div class="surface pad text-muted">No sales yet. Buyer contact and handover confirmation will appear here.</div></c:when>
+            <c:otherwise><div class="order-stack">
+                <c:forEach var="t" items="${sales}">
+                    <article class="order-card seller-order" data-txn-id="${t.txnId}">
+                        <div class="order-top"><div><small>Sale #${t.txnId}</small><h5><a href="${ctx}/listing?id=${t.listingId}"><c:out value="${t.listingTitle}"/></a></h5></div><span class="fulfillment-pill ${t.pickupCompleted ? 'complete' : 'waiting'}">${t.pickupCompleted ? 'Delivered' : 'Pickup pending'}</span></div>
+                        <div class="order-money"><strong>&#8377;<fmt:formatNumber value="${t.amount}" minFractionDigits="2" maxFractionDigits="2"/></strong><span>Payment confirmed by <c:out value="${t.paymentMethod}"/></span><small><c:out value="${t.paymentReference}"/></small></div>
+                        <div class="contact-panel"><div><span class="contact-unlocked">Buyer contact</span><strong><c:out value="${t.counterpartyName}"/></strong></div><div><span>&#9993; <c:out value="${t.counterpartyEmail}"/></span><span>&#9742; <c:out value="${empty t.counterpartyPhone ? 'Not provided' : t.counterpartyPhone}"/></span></div></div>
+                        <c:choose>
+                            <c:when test="${t.pickupCompleted}"><div class="pickup-complete"><span>&#10003;</span><div><strong>Delivery confirmed</strong><small><fmt:formatDate value="${t.pickupCompletedAt}" pattern="dd MMM yyyy, HH:mm"/></small></div></div></c:when>
+                            <c:otherwise>
+                                <div class="seller-handover"><div><strong>Confirm the handover</strong><p>Meet the buyer, let them inspect the item, then ask for their private six-digit code.</p></div><form method="post" action="${ctx}/handover" class="handover-form"><input type="hidden" name="csrfToken" value="${csrfToken}"><input type="hidden" name="txnId" value="${t.txnId}"><input name="handoverCode" class="form-control" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" aria-label="Buyer's six-digit pickup code" required><button class="btn btn-primary">Confirm pickup</button></form></div>
+                            </c:otherwise>
+                        </c:choose>
+                    </article>
+                </c:forEach>
+            </div></c:otherwise>
         </c:choose>
-    </div>
+    </section>
 </div>
 
 <%@ include file="_footer.jsp" %>

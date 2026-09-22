@@ -79,6 +79,7 @@
                                     <summary>Purchase terms and buyer protection</summary>
                                     <ul>
                                         <li>Inspect the item and confirm its condition during campus pickup.</li>
+                                        <li>You receive a private six-digit pickup code. Share it with the seller only after inspection and handover.</li>
                                         <li>The seller's verified profile name, email and phone number appear after checkout for pickup coordination.</li>
                                         <li>CampusMarket blocks prohibited goods and records the agreed price and payment reference.</li>
                                         <li>This student project simulates payment confirmation. Any refund or pickup change must be agreed directly with the seller.</li>

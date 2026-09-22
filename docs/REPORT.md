@@ -69,7 +69,7 @@ The main tables (see `src/main/resources/schema.sql`) are:
 - **listings**(listing_id, seller_id→students, title, description, category, price, item_condition, status, created_at)
 - **listing_images**(image_id, listing_id→listings, image_path, position_no)
 - **cart_items**(cart_id, session_id, listing_id→listings, added_at)
-- **transactions**(txn_id, buyer_id→students, listing_id→listings, amount, payment_method, payment_reference, payment_status, terms_accepted_at, txn_date)
+- **transactions**(txn_id, buyer_id→students, listing_id→listings, amount, payment_method, payment_reference, payment_status, terms_accepted_at, handover_code, fulfillment_status, pickup_completed_at, txn_date)
 
 `status` on a listing is `AVAILABLE` → `SOLD`. Passwords are stored as salted PBKDF2 hashes (legacy hashes upgraded on login), never plain text.
 
@@ -122,6 +122,7 @@ Capture these steps for your demo (save images into `docs/screenshots/`):
 - Verified ratings and reviews tied to completed transactions.
 - Seller trust profiles with membership date, completed-sale count and aggregate rating.
 - Mandatory purchase terms recorded with the transaction; email and phone unlock after checkout for pickup coordination.
+- Verified campus handover: the buyer inspects the item before sharing a private six-digit code, the seller confirms delivery, and reviews unlock only after confirmation.
 
 ## 13. Possible future improvements
 - Cloud object storage plus antivirus scanning and automated image moderation.

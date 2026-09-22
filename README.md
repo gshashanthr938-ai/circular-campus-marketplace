@@ -17,6 +17,7 @@ A campus resale marketplace using Java 17, Servlets, JSP/JSTL and JDBC. Guests b
 - Transaction-linked ratings and reviews shown on each product page.
 - Seller trust profiles show membership date, completed sales and ratings; email and phone remain protected until purchase.
 - Checkout requires clear purchase terms, records acceptance and unlocks pickup contact details in transaction history.
+- A private six-digit pickup code proves the physical handover: the buyer shares it only after inspection, the seller confirms delivery, and verified reviews unlock afterwards.
 - Administrator moderation for listing status, notes and local product photographs.
 - Administrator analytics for students, inventory, completed resales, payment mix, ratings, waitlists and estimated CO2e avoided.
 - Transparent price limits by category and condition, plus blocked campus items such as tobacco, vapes, alcohol, weapons and narcotics.
@@ -66,7 +67,7 @@ Browser (HTML/CSS/Bootstrap/JSP) → Servlets and session/CSRF filter → Checko
 | listings | Seller-owned inventory and status |
 | listing_images | Up to three seller-uploaded product-image paths |
 | cart_items | Session-linked cart entries |
-| transactions | Purchases, amounts, payment method, reference, status and terms acceptance |
+| transactions | Purchases, payments, terms acceptance, private handover codes and pickup status |
 | waitlist | Students waiting for an unavailable listing |
 | notifications | Availability and checkout-conflict alerts |
 | reviews | One verified rating/review per completed transaction |

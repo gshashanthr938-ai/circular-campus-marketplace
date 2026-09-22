@@ -21,6 +21,7 @@ public class AnalyticsDao {
             analytics.setListings(count(c, "SELECT COUNT(*) FROM listings"));
             analytics.setAvailableListings(count(c, "SELECT COUNT(*) FROM listings WHERE status='AVAILABLE'"));
             analytics.setCompletedTransactions(count(c, "SELECT COUNT(*) FROM transactions WHERE payment_status='COMPLETED'"));
+            analytics.setCompletedHandovers(count(c, "SELECT COUNT(*) FROM transactions WHERE fulfillment_status='PICKUP_COMPLETED'"));
             analytics.setWaitlistedStudents(count(c, "SELECT COUNT(*) FROM waitlist"));
             analytics.setTransactionValue(decimal(c, "SELECT COALESCE(SUM(amount),0) FROM transactions WHERE payment_status='COMPLETED'"));
 

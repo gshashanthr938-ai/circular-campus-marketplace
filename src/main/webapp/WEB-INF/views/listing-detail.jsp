@@ -35,6 +35,7 @@
         </div>
         <p style="font-size:15.5px;color:var(--slate);"><c:out value="${listing.description}"/></p>
         <div class="price-tag my-3">&#8377;<fmt:formatNumber value="${listing.price}" minFractionDigits="2" maxFractionDigits="2"/></div>
+        <div class="safe-pickup-strip"><span><b>1</b> Pay</span><i></i><span><b>2</b> Meet &amp; inspect</span><i></i><span><b>3</b> Share pickup code</span></div>
 
         <c:choose>
             <c:when test="${ownListing}">

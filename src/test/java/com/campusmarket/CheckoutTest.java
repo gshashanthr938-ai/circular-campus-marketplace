@@ -1,6 +1,8 @@
 package com.campusmarket;
 import com.campusmarket.db.Db;
 import com.campusmarket.service.CheckoutService;
+import com.campusmarket.dao.ReviewDao;
+import com.campusmarket.dao.TransactionDao;
 import org.junit.jupiter.api.*;
 import java.sql.*;
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ class CheckoutTest {
     }
     void sql(String sql)throws Exception {try(Connection c=Db.getConnection();Statement s=c.createStatement()){s.execute(sql);}}
     BigDecimal value(String sql)throws Exception {try(Connection c=Db.getConnection();Statement s=c.createStatement();ResultSet r=s.executeQuery(sql)){r.next();return r.getBigDecimal(1);}}
+    String textValue(String sql)throws Exception {try(Connection c=Db.getConnection();Statement s=c.createStatement();ResultSet r=s.executeQuery(sql)){r.next();return r.getString(1);}}
     void cart(String sid,int item)throws Exception {sql("INSERT INTO cart_items(session_id,listing_id) VALUES('"+sid+"',"+item+")");}
     @Test void successfulUpiPaymentAndRepeatIsSafe() throws Exception {
         cart("one",1); assertTrue(new CheckoutService().checkout(1,"one","UPI","buyer@bank",true).success);
@@ -32,8 +35,22 @@ class CheckoutTest {
         assertEquals(0,new BigDecimal("100").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=2")));
         assertEquals(1,value("SELECT COUNT(*) FROM transactions").intValue());
         assertEquals(1,value("SELECT COUNT(*) FROM transactions WHERE payment_method='UPI' AND payment_status='COMPLETED' AND payment_reference IS NOT NULL AND terms_accepted_at IS NOT NULL").intValue());
+        assertEquals(1,value("SELECT COUNT(*) FROM transactions WHERE fulfillment_status='AWAITING_PICKUP' AND handover_code IS NOT NULL AND LENGTH(handover_code)=6 AND pickup_completed_at IS NULL").intValue());
         assertEquals(10,value("SELECT sustainability_points FROM students WHERE student_id=1").intValue());
         assertFalse(new CheckoutService().checkout(1,"one","UPI","buyer@bank",true).success);
+    }
+    @Test void pickupCodeProvesHandoverAndUnlocksReview() throws Exception {
+        cart("one",1);
+        assertTrue(new CheckoutService().checkout(1,"one","UPI","buyer@bank",true).success);
+        String code=textValue("SELECT handover_code FROM transactions WHERE listing_id=1");
+        long txnId=value("SELECT txn_id FROM transactions WHERE listing_id=1").longValue();
+        assertFalse(new ReviewDao().create(txnId,1,5,"Too early"));
+        assertFalse(new TransactionDao().confirmHandover(txnId,3,code));
+        assertFalse(new TransactionDao().confirmHandover(txnId,2,"000000".equals(code)?"999999":"000000"));
+        assertTrue(new TransactionDao().confirmHandover(txnId,2,code));
+        assertFalse(new TransactionDao().confirmHandover(txnId,2,code));
+        assertEquals(1,value("SELECT COUNT(*) FROM transactions WHERE txn_id="+txnId+" AND fulfillment_status='PICKUP_COMPLETED' AND pickup_completed_at IS NOT NULL").intValue());
+        assertTrue(new ReviewDao().create(txnId,1,5,"Item matched the photos and pickup was smooth."));
     }
     @Test void invalidPaymentDoesNotClaimItem() throws Exception {
         cart("one",2); assertFalse(new CheckoutService().checkout(1,"one","UPI","not-a-upi-id",true).success);

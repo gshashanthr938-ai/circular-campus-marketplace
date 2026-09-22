@@ -20,6 +20,9 @@ public class TransactionView {
     private String paymentMethod;
     private String paymentReference;
     private String paymentStatus;
+    private String handoverCode;
+    private String fulfillmentStatus;
+    private Timestamp pickupCompletedAt;
 
     public long getTxnId() {
         return txnId;
@@ -81,4 +84,11 @@ public class TransactionView {
     public void setPaymentReference(String paymentReference){this.paymentReference=paymentReference;}
     public String getPaymentStatus(){return paymentStatus;}
     public void setPaymentStatus(String paymentStatus){this.paymentStatus=paymentStatus;}
+    public String getHandoverCode(){return handoverCode;}
+    public void setHandoverCode(String handoverCode){this.handoverCode=handoverCode;}
+    public String getFulfillmentStatus(){return fulfillmentStatus;}
+    public void setFulfillmentStatus(String fulfillmentStatus){this.fulfillmentStatus=fulfillmentStatus;}
+    public Timestamp getPickupCompletedAt(){return pickupCompletedAt;}
+    public void setPickupCompletedAt(Timestamp pickupCompletedAt){this.pickupCompletedAt=pickupCompletedAt;}
+    public boolean isPickupCompleted(){return "PICKUP_COMPLETED".equals(fulfillmentStatus);}
 }

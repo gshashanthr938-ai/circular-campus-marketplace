@@ -13,7 +13,7 @@ public class ReviewServlet extends HttpServlet {
         Student me=Web.currentStudent(req);if(me==null){Web.redirect(req,resp,"/login");return;}
         boolean saved=false;
         try{saved=dao.create(Long.parseLong(req.getParameter("txnId")),me.getId(),Integer.parseInt(req.getParameter("rating")),req.getParameter("comment"));}catch(Exception ignored){}
-        Web.setFlash(req,saved?"Thanks—your review is now visible.":"Review could not be saved. Use 1–5 stars and one review per purchase.");
+        Web.setFlash(req,saved?"Thanks—your review is now visible.":"Review could not be saved. Confirm pickup first, then use 1–5 stars and one review per purchase.");
         Web.redirect(req,resp,"/history");
     }
 }

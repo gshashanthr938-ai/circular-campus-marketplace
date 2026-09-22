@@ -17,7 +17,7 @@
   </section>
   <section class="surface pad">
     <div class="insight-head"><div><h5>Trust and checkout</h5><p>Signals that help administrators assess quality</p></div><span>${analytics.waitlistedStudents} waiting</span></div>
-    <div class="trust-summary"><div><strong><c:choose><c:when test="${analytics.reviewCount > 0}"><fmt:formatNumber value="${analytics.averageRating}" maxFractionDigits="1"/>/5</c:when><c:otherwise>New</c:otherwise></c:choose></strong><span>${analytics.reviewCount} verified reviews</span></div><div><strong>${analytics.completedTransactions}</strong><span>atomic checkouts</span></div></div>
+    <div class="trust-summary"><div><strong><c:choose><c:when test="${analytics.reviewCount > 0}"><fmt:formatNumber value="${analytics.averageRating}" maxFractionDigits="1"/>/5</c:when><c:otherwise>New</c:otherwise></c:choose></strong><span>${analytics.reviewCount} verified reviews</span></div><div><strong>${analytics.completedHandovers}</strong><span>verified handovers</span></div></div>
     <c:choose><c:when test="${empty analytics.paymentMethods}"><p class="text-muted small mb-0">Payment-method trends appear after the first checkout.</p></c:when><c:otherwise><c:forEach var="row" items="${analytics.paymentMethods}"><div class="payment-stat"><span><c:out value="${row.label}"/></span><strong>${row.count}</strong></div></c:forEach></c:otherwise></c:choose>
   </section>
 </div>
