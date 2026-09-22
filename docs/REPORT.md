@@ -93,6 +93,10 @@ seller and may appear in many carts and (once) in a transaction.
 - 🌱 **Sustainability points**: +10 per item rehomed, shown on the profile page.
 - 💳 **Payment choice**: UPI and net banking are validated and recorded without collecting bank credentials.
 - 📷 **Product photos**: sellers upload one to three item pictures; administrators can change the primary picture.
+- 📊 **Admin analytics**: live totals, category mix, payment mix, ratings, waitlists, transaction value and estimated CO2e avoided.
+
+### Documented payment adaptation
+The supplied topic describes a simple in-app wallet. The approved stakeholder requirement replaces artificial signup money with UPI and net banking. CampusMarket therefore keeps wallet balances at zero and records a validated payment method/reference for every transaction. Authenticated identity and cart state still use `HttpSession`, preserving the core Cookies-vs-Sessions learning objective.
 
 ## 10. How to run
 Install **JDK 17**, then run `run.cmd` (Windows) or `./mvnw -q compile exec:java`, and open

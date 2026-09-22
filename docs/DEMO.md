@@ -6,7 +6,8 @@
 4. Open the buyer-protection terms, select UPI or net banking, accept the terms and complete the academic payment confirmation.
 5. Show the payment reference and the seller's unlocked email and phone number in history, then show the SOLD status and competing-buyer waitlist alert.
 6. Explain cookies, sessions, Servlets, JSP, JDBC and atomic database transactions.
-7. Show the automated tests and source repository.
+7. Log in as the administrator and open the control centre. Show live students, active inventory, completed resales, transaction value, category mix, payment mix, waitlist count and estimated CO2e avoided.
+8. Show the automated tests and source repository.
 
 Read-only database queries:
 

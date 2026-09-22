@@ -13,9 +13,9 @@
     </div>
     <div class="col-md-4">
         <div class="stat-box">
-            <div class="text-muted">Sustainability points &#9851;</div>
+            <div class="text-muted">Circular impact &#9851;</div>
             <div class="num">${student.sustainabilityPoints}</div>
-            <div class="small text-muted">+10 for every item you rehome</div>
+            <div class="small text-muted">points &middot; about <fmt:formatNumber value="${estimatedCo2SavedKg}" maxFractionDigits="1"/> kg CO2e avoided</div>
         </div>
     </div>
     <div class="col-md-4"><div class="stat-box"><div class="text-muted">Accepted payments</div><div class="num" style="font-size:1.2rem;">UPI &amp; net banking</div><div class="small text-muted">Selected securely during checkout</div></div></div>

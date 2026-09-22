@@ -27,8 +27,11 @@ public class ProfileServlet extends HttpServlet {
         Student fresh = studentDao.findById(me.getId());
         req.getSession().setAttribute("student", fresh);
         req.setAttribute("student", fresh);
-        req.setAttribute("purchaseCount",new com.campusmarket.dao.TransactionDao().purchases(me.getId()).size());
-        req.setAttribute("salesCount",new com.campusmarket.dao.TransactionDao().sales(me.getId()).size());
+        int purchaseCount=new com.campusmarket.dao.TransactionDao().purchases(me.getId()).size();
+        int salesCount=new com.campusmarket.dao.TransactionDao().sales(me.getId()).size();
+        req.setAttribute("purchaseCount",purchaseCount);
+        req.setAttribute("salesCount",salesCount);
+        req.setAttribute("estimatedCo2SavedKg",purchaseCount*2.5);
         req.setAttribute("listingCount",new com.campusmarket.dao.ListingDao().findBySeller(me.getId()).size());
         req.setAttribute("notifications",new com.campusmarket.dao.NotificationDao().findFor(me.getId()));
         Web.render(req, resp, "profile.jsp");

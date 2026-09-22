@@ -1,6 +1,7 @@
 package com.campusmarket.web;
 
 import com.campusmarket.dao.ListingDao;
+import com.campusmarket.dao.AnalyticsDao;
 import com.campusmarket.dao.WaitlistDao;
 import com.campusmarket.model.Listing;
 import com.campusmarket.model.Student;
@@ -16,9 +17,11 @@ public class AdminServlet extends HttpServlet {
     private static final Set<String> STATES=Set.of("AVAILABLE","SOLD","REMOVED");
     private final ListingDao listings=new ListingDao();
     private final WaitlistDao waitlist=new WaitlistDao();
+    private final AnalyticsDao analytics=new AnalyticsDao();
 
     protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException {
         if(!admin(req,resp))return;
+        req.setAttribute("analytics",analytics.load());
         req.setAttribute("listings",listings.findAll());
         java.util.LinkedHashSet<String> images=new java.util.LinkedHashSet<>(com.campusmarket.db.Catalog.imageOptions());
         images.addAll(new com.campusmarket.dao.ListingImageDao().allPaths());

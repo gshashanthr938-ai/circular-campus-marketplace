@@ -367,3 +367,32 @@ h2, h3 { font-weight: 800; }
 .contact-unlocked { display:inline-flex; align-items:center; gap:5px; margin-bottom:5px; padding:3px 8px; border-radius:999px; background:#eef2ff; color:var(--indigo-700); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
 .pickup-contact { color:var(--muted); font-size:12px; word-break:break-word; }
 @media(max-width:700px) { .seller-trust-card{grid-template-columns:auto 1fr}.trust-stat{border-left:0;padding-left:0}.trust-contact{grid-column:1/-1}.purchase-terms ul{margin-left:27px} }
+
+/* Administrator analytics */
+.admin-kpi-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.admin-kpi { position:relative; overflow:hidden; min-height:142px; padding:20px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:var(--shadow-sm); }
+.admin-kpi::after { content:""; position:absolute; width:82px; height:82px; right:-24px; bottom:-30px; border-radius:50%; background:var(--tint); }
+.admin-kpi span,.admin-kpi small,.admin-kpi strong { display:block; position:relative; z-index:1; }
+.admin-kpi span { color:var(--muted); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+.admin-kpi strong { margin:8px 0 2px; color:var(--ink); font:800 29px/1.15 "Plus Jakarta Sans",sans-serif; }
+.admin-kpi small { color:var(--muted); }
+.admin-kpi.impact { color:#fff; border-color:transparent; background:linear-gradient(135deg,var(--indigo),var(--violet)); }
+.admin-kpi.impact span,.admin-kpi.impact strong,.admin-kpi.impact small { color:#fff; }
+.admin-kpi.impact::after { background:rgba(255,255,255,.12); }
+.admin-insight-grid { display:grid; grid-template-columns:1.25fr .75fr; gap:18px; }
+.insight-head { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; margin-bottom:18px; }
+.insight-head h5,.insight-head p { margin:0; }
+.insight-head p { color:var(--muted); font-size:12.5px; }
+.insight-head>span { flex:0 0 auto; padding:5px 9px; border-radius:999px; color:var(--indigo-700); background:var(--tint); font-size:11px; font-weight:800; }
+.metric-row { margin-top:13px; }
+.metric-row>div:first-child { display:flex; justify-content:space-between; color:var(--slate); font-size:12.5px; }
+.metric-track { height:7px; margin-top:5px; overflow:hidden; border-radius:999px; background:#eef0f7; }
+.metric-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--indigo),var(--violet)); }
+.trust-summary { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.trust-summary>div { padding:14px; border-radius:14px; background:var(--bg); }
+.trust-summary strong,.trust-summary span { display:block; }
+.trust-summary strong { color:var(--indigo-700); font-size:20px; }
+.trust-summary span { color:var(--muted); font-size:11.5px; }
+.payment-stat { display:flex; justify-content:space-between; margin-top:8px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; color:var(--slate); font-size:13px; }
+@media(max-width:950px) { .admin-kpi-grid{grid-template-columns:repeat(2,1fr)} .admin-insight-grid{grid-template-columns:1fr} }
+@media(max-width:520px) { .admin-kpi-grid{grid-template-columns:1fr} }

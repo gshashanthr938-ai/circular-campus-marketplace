@@ -18,6 +18,7 @@ A campus resale marketplace using Java 17, Servlets, JSP/JSTL and JDBC. Guests b
 - Seller trust profiles show membership date, completed sales and ratings; email and phone remain protected until purchase.
 - Checkout requires clear purchase terms, records acceptance and unlocks pickup contact details in transaction history.
 - Administrator moderation for listing status, notes and local product photographs.
+- Administrator analytics for students, inventory, completed resales, payment mix, ratings, waitlists and estimated CO2e avoided.
 - Transparent price limits by category and condition, plus blocked campus items such as tobacco, vapes, alcohol, weapons and narcotics.
 
 ## Run
@@ -73,7 +74,7 @@ Browser (HTML/CSS/Bootstrap/JSP) → Servlets and session/CSRF filter → Checko
 
 ## Verification and documentation
 
-Run `mvnw.cmd test` on Windows or `sh mvnw test` elsewhere. Tests use an isolated in-memory database. GitHub Actions runs tests and packaging on Java 17.
+Run `mvnw.cmd test` on Windows or `sh mvnw test` elsewhere. Tests use an isolated in-memory database and run on Java 17.
 
 - [Validation results](docs/VALIDATION.md)
 - [Project report and ER diagram](docs/REPORT.md)
@@ -91,5 +92,7 @@ Import the GitHub repository into Replit and press **Run**. The included `.repli
 ## Scope
 
 The checkout is an academic UPI/net-banking gateway simulation: it validates the selected method and records a completed payment reference, but it does not contact a bank or collect passwords, OTPs or account numbers. Connecting a real gateway requires a merchant account, server-side API credentials, signed webhooks, refunds and compliance work. Seller uploads are stored locally and excluded from Git; bundled catalog photos remain in the repository. Student email ownership, pickup coordination and rate limiting remain future work.
+
+The original PBL title uses the word "wallet". Following the approved project requirement, new accounts receive no artificial balance and checkout uses UPI or net banking only. The database retains a zero-valued wallet column for schema traceability, while `HttpSession` still controls authenticated identity and cart state. This adaptation is documented explicitly for evaluation.
 
 GitHub hosts source code. GitHub Pages cannot run this Java backend; public hosting requires a Java server and database. Local data and credentials are excluded from the repository.
