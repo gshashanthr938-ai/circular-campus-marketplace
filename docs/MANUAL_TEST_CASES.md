@@ -256,6 +256,50 @@
 
 **Result:** Pass / Fail
 
+---
+
+### TC-12: Buyer Refund Choice
+
+**Steps:**
+
+1. Complete a purchase but do not confirm pickup.
+2. Open **History** and expand **Need to cancel this order?**
+3. Choose **CampusMarket wallet**, enter a reason and confirm the refund.
+4. Repeat with a different order and choose **Original payment source**.
+
+**Expected result:**
+
+- Each order can be refunded only once and only by its buyer.
+- Pickup-confirmed orders cannot be refunded automatically.
+- The transaction becomes REFUNDED/CANCELLED and receives a refund reference.
+- The listing becomes AVAILABLE again and waitlisted students are notified.
+- A wallet refund increases the wallet balance; an original-source refund does not.
+- The original purchase sustainability points are removed.
+
+**Result:** Pass / Fail
+
+---
+
+### TC-13: Refund-Wallet Withdrawal
+
+**Steps:**
+
+1. Open **Wallet** after completing a wallet refund.
+2. Confirm that the refund credit and reference appear in the ledger.
+3. Enter an amount smaller than the available balance.
+4. Choose UPI or net banking and confirm the withdrawal.
+5. Attempt another withdrawal larger than the remaining balance.
+
+**Expected result:**
+
+- The successful withdrawal reduces the balance exactly once and creates a debit reference.
+- The ledger shows both the refund credit and withdrawal.
+- The UPI identifier is masked in wallet history.
+- The overdraw attempt is rejected and the balance cannot become negative.
+- A new account has ₹0 until it receives a wallet-selected refund.
+
+**Result:** Pass / Fail
+
 ## Final Test Summary
 
 | Test Case | Feature | Status |
@@ -271,3 +315,5 @@
 | TC-09 | Pickup-code verification | Pass |
 | TC-10 | Review submission | Pass |
 | TC-11 | Administrator dashboard | Pass |
+| TC-12 | Buyer refund choice | Pass |
+| TC-13 | Refund-wallet withdrawal | Pass |

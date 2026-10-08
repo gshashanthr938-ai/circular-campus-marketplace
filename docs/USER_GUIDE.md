@@ -48,7 +48,19 @@ Demo accounts use the password `password`:
 
 CampusMarket uses an academic payment simulation. It does not collect bank passwords, account numbers or OTPs.
 
-## 5. Selling a Product
+## 5. Refunds and Wallet Withdrawals
+
+1. Before the pickup is confirmed, open **History** and expand **Need to cancel this order?**
+2. Choose **Original payment source** to record a return to the same UPI/net-banking source, or choose **CampusMarket wallet** for immediate wallet credit.
+3. Enter a reason and confirm the cancellation.
+4. The item becomes available again and the refund reference appears in History.
+5. For a wallet refund, select the wallet balance in the navigation bar.
+6. Enter an amount, choose UPI or net banking, add the destination and select **Withdraw money**.
+7. The wallet ledger keeps separate refund-credit and withdrawal references.
+
+Every new account starts with ₹0. The wallet contains only refunds chosen by the user. Refunds and withdrawals are academic simulations and do not move real bank money.
+
+## 6. Selling a Product
 
 1. Log in and select **Sell**.
 2. Enter the product title and description.
@@ -61,7 +73,7 @@ CampusMarket uses an academic payment simulation. It does not collect bank passw
 
 CampusMarket rejects prohibited products such as cigarettes, vapes, alcohol, weapons, narcotics and fireworks. It also checks for unusually high prices.
 
-## 6. Pickup-Code Confirmation
+## 7. Pickup-Code Confirmation
 
 1. After checkout, the buyer opens **History**.
 2. The buyer can see the seller’s contact details and a private six-digit pickup code.
