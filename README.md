@@ -11,6 +11,8 @@ A campus resale marketplace using Java 17, Servlets, JSP/JSTL and JDBC. Guests b
 - Locally bundled reference photographs and recently viewed items.
 - Guest cookies, login session renewal and cart migration into HttpSession.
 - UPI and net-banking checkout with transaction references and sustainability points.
+- Buyer-selected refunds before pickup: return to the original payment source or credit the CampusMarket wallet.
+- Refund-wallet withdrawal through UPI or net banking, with a permanent credit/debit ledger and no signup bonus money.
 - Sellers upload one to three real product pictures (JPG, PNG or WebP, up to 3 MB each).
 - Concurrent checkout protection, CSRF tokens, salted PBKDF2 passwords and prepared SQL statements.
 - First-completed-checkout wins when two buyers race for one item; the other buyer is waitlisted and notified when an administrator makes it available again.
@@ -63,11 +65,12 @@ Browser (HTML/CSS/Bootstrap/JSP) → Servlets and session/CSRF filter → Checko
 
 | Table | Stores |
 | --- | --- |
-| students | Accounts, phone/email contact, password hashes, roles and sustainability points |
+| students | Accounts, phone/email contact, password hashes, roles, refund-wallet balance and sustainability points |
 | listings | Seller-owned inventory and status |
 | listing_images | Up to three seller-uploaded product-image paths |
 | cart_items | Session-linked cart entries |
-| transactions | Purchases, payments, terms acceptance, private handover codes and pickup status |
+| transactions | Purchases, payments, refunds, terms acceptance, private handover codes and pickup status |
+| wallet_transactions | Auditable refund credits and UPI/net-banking withdrawals |
 | waitlist | Students waiting for an unavailable listing |
 | notifications | Availability and checkout-conflict alerts |
 | reviews | One verified rating/review per completed transaction |
@@ -92,8 +95,8 @@ Import the GitHub repository into Replit and press **Run**. The included `.repli
 
 ## Scope
 
-The checkout is an academic UPI/net-banking gateway simulation: it validates the selected method and records a completed payment reference, but it does not contact a bank or collect passwords, OTPs or account numbers. Connecting a real gateway requires a merchant account, server-side API credentials, signed webhooks, refunds and compliance work. Seller uploads are stored locally and excluded from Git; bundled catalog photos remain in the repository. Student email ownership, pickup coordination and rate limiting remain future work.
+Checkout, original-source refunds and withdrawals are academic gateway simulations: they validate the selected method and record references, but do not contact a bank or collect passwords, OTPs or account numbers. Connecting a real gateway requires a merchant account, server-side API credentials, signed webhooks and compliance work. Seller uploads are stored locally and excluded from Git; bundled catalog photos remain in the repository. Student email ownership, pickup coordination and rate limiting remain future work.
 
-The original PBL title uses the word "wallet". Following the approved project requirement, new accounts receive no artificial balance and checkout uses UPI or net banking only. The database retains a zero-valued wallet column for schema traceability, while `HttpSession` still controls authenticated identity and cart state. This adaptation is documented explicitly for evaluation.
+New accounts receive no artificial money and checkout uses UPI or net banking only. The wallet becomes active only when a buyer chooses it as a refund destination; that balance can then be withdrawn through UPI or net banking. Every credit and withdrawal is written atomically to `wallet_transactions`, while `HttpSession` still controls authenticated identity and cart state.
 
 GitHub hosts source code. GitHub Pages cannot run this Java backend; public hosting requires a Java server and database. Local data and credentials are excluded from the repository.

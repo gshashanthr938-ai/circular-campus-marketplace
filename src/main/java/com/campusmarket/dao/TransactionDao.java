@@ -30,12 +30,16 @@ public class TransactionDao {
         t.setHandoverCode(rs.getString("handover_code"));
         t.setFulfillmentStatus(rs.getString("fulfillment_status"));
         t.setPickupCompletedAt(rs.getTimestamp("pickup_completed_at"));
+        t.setRefundMethod(rs.getString("refund_method"));
+        t.setRefundReference(rs.getString("refund_reference"));
+        t.setRefundReason(rs.getString("refund_reason"));
+        t.setRefundedAt(rs.getTimestamp("refunded_at"));
         return t;
     }
 
     /** Items the student BOUGHT (counterparty = seller). */
     public List<TransactionView> purchases(long buyerId) {
-        String sql = "SELECT t.txn_id,t.listing_id,t.amount,t.txn_date,t.payment_method,t.payment_reference,t.payment_status,t.handover_code,t.fulfillment_status,t.pickup_completed_at,(SELECT COUNT(*) FROM reviews r WHERE r.txn_id=t.txn_id) AS reviewed, "
+        String sql = "SELECT t.txn_id,t.listing_id,t.amount,t.txn_date,t.payment_method,t.payment_reference,t.payment_status,t.handover_code,t.fulfillment_status,t.pickup_completed_at,t.refund_method,t.refund_reference,t.refund_reason,t.refunded_at,(SELECT COUNT(*) FROM reviews r WHERE r.txn_id=t.txn_id) AS reviewed, "
                 + "l.title AS listing_title, seller.name AS counterparty, seller.email AS counterparty_email, seller.phone AS counterparty_phone "
                 + "FROM transactions t "
                 + "JOIN listings l ON l.listing_id = t.listing_id "
@@ -46,7 +50,7 @@ public class TransactionDao {
 
     /** Items the student SOLD (counterparty = buyer). */
     public List<TransactionView> sales(long sellerId) {
-        String sql = "SELECT t.txn_id,t.listing_id,t.amount,t.txn_date,t.payment_method,t.payment_reference,t.payment_status,NULL AS handover_code,t.fulfillment_status,t.pickup_completed_at,(SELECT COUNT(*) FROM reviews r WHERE r.txn_id=t.txn_id) AS reviewed, "
+        String sql = "SELECT t.txn_id,t.listing_id,t.amount,t.txn_date,t.payment_method,t.payment_reference,t.payment_status,NULL AS handover_code,t.fulfillment_status,t.pickup_completed_at,t.refund_method,t.refund_reference,t.refund_reason,t.refunded_at,(SELECT COUNT(*) FROM reviews r WHERE r.txn_id=t.txn_id) AS reviewed, "
                 + "l.title AS listing_title, buyer.name AS counterparty, buyer.email AS counterparty_email, buyer.phone AS counterparty_phone "
                 + "FROM transactions t "
                 + "JOIN listings l ON l.listing_id = t.listing_id "
@@ -59,7 +63,7 @@ public class TransactionDao {
     public boolean confirmHandover(long transactionId, long sellerId, String code) {
         if (code == null || !code.matches("\\d{6}")) return false;
         String sql = "UPDATE transactions SET fulfillment_status='PICKUP_COMPLETED',pickup_completed_at=CURRENT_TIMESTAMP "
-                + "WHERE txn_id=? AND handover_code=? AND fulfillment_status='AWAITING_PICKUP' "
+                + "WHERE txn_id=? AND handover_code=? AND fulfillment_status='AWAITING_PICKUP' AND payment_status='COMPLETED' "
                 + "AND listing_id IN (SELECT listing_id FROM listings WHERE seller_id=?)";
         try (Connection c = Db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, transactionId);

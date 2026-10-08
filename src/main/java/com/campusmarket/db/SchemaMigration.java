@@ -16,6 +16,7 @@ public final class SchemaMigration {
             add(st, "ALTER TABLE students ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'STUDENT'");
             add(st, "ALTER TABLE students ADD COLUMN phone VARCHAR(20)");
             add(st, "ALTER TABLE students ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+            add(st, "ALTER TABLE students ADD COLUMN wallet_balance DECIMAL(10,2) NOT NULL DEFAULT 0");
             add(st, "ALTER TABLE listings ADD COLUMN image_path VARCHAR(255)");
             add(st, "ALTER TABLE listings ADD COLUMN moderation_note VARCHAR(500)");
             add(st, "ALTER TABLE transactions ADD COLUMN payment_method VARCHAR(20) NOT NULL DEFAULT 'UPI'");
@@ -25,8 +26,18 @@ public final class SchemaMigration {
             add(st, "ALTER TABLE transactions ADD COLUMN handover_code VARCHAR(6)");
             add(st, "ALTER TABLE transactions ADD COLUMN fulfillment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PICKUP'");
             add(st, "ALTER TABLE transactions ADD COLUMN pickup_completed_at TIMESTAMP");
+            add(st, "ALTER TABLE transactions ADD COLUMN refund_method VARCHAR(30)");
+            add(st, "ALTER TABLE transactions ADD COLUMN refund_reference VARCHAR(80)");
+            add(st, "ALTER TABLE transactions ADD COLUMN refund_reason VARCHAR(500)");
+            add(st, "ALTER TABLE transactions ADD COLUMN refunded_at TIMESTAMP");
+            st.execute("CREATE TABLE IF NOT EXISTS wallet_transactions ("
+                    + "wallet_txn_id BIGINT AUTO_INCREMENT PRIMARY KEY,"
+                    + "student_id BIGINT NOT NULL,transaction_id BIGINT,entry_type VARCHAR(30) NOT NULL,"
+                    + "amount DECIMAL(10,2) NOT NULL,destination VARCHAR(30) NOT NULL,"
+                    + "reference VARCHAR(80) NOT NULL,details VARCHAR(250),created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+                    + "CONSTRAINT fk_wallet_student FOREIGN KEY (student_id) REFERENCES students(student_id),"
+                    + "CONSTRAINT fk_wallet_transaction FOREIGN KEY (transaction_id) REFERENCES transactions(txn_id))");
             backfillHandoverCodes(c);
-            st.executeUpdate("UPDATE students SET wallet_balance=0");
             st.executeUpdate("UPDATE students SET phone='+91 90000 10001' WHERE email='asha@campus.edu' AND phone IS NULL");
             st.executeUpdate("UPDATE students SET phone='+91 90000 10002' WHERE email='rahul@campus.edu' AND phone IS NULL");
             st.executeUpdate("UPDATE students SET phone='+91 90000 10003' WHERE email='neha@campus.edu' AND phone IS NULL");

@@ -43,7 +43,7 @@ Browser ──HTTP──▶ Servlets (controller)  ──▶ Service / DAO (JDBC
 - **View** — JSP pages under `WEB-INF/views/` using JSTL; a shared header/footer and a
   `CommonAttributesFilter` (a `@WebFilter`) supply the nav bar's cart badge and user info.
 - **Model** — plain Java beans (`Student`, `Listing`, `TransactionView`).
-- **Data access** — one DAO per table plus a transactional `CheckoutService`.
+- **Data access** — one DAO per table plus transactional checkout, refund and wallet services.
 - **Persistence** — JDBC over H2 (default) or MySQL; identical SQL for both.
 
 ## 5. Cookies vs Sessions — design decisions (core of the project)
@@ -54,6 +54,7 @@ Browser ──HTTP──▶ Servlets (controller)  ──▶ Service / DAO (JDBC
 | Logged-in identity | `HttpSession` attribute `student` | Server-side, trusted, per-session. |
 | Logged-in cart | `cart_items` table keyed by **session id** | Durable + matches the brief's schema; tied to the session lifecycle. |
 | Payment record | `transactions` table | Method, status and reference are authoritative and server-side. |
+| Refund wallet | `students.wallet_balance` + `wallet_transactions` | Only chosen refunds create balance; every credit/withdrawal has a ledger reference. |
 
 **Migration:** when a guest logs in, `migrateGuestCartToSession()` reads the `guest_cart` cookie,
 inserts each still-available item into `cart_items` under the new session id, and deletes the
@@ -65,11 +66,12 @@ first so nothing is orphaned.
 ## 6. Database schema
 The main tables (see `src/main/resources/schema.sql`) are:
 
-- **students**(student_id, name, email, phone, password, role, sustainability_points, created_at)
+- **students**(student_id, name, email, phone, password, role, wallet_balance, sustainability_points, created_at)
 - **listings**(listing_id, seller_id→students, title, description, category, price, item_condition, status, created_at)
 - **listing_images**(image_id, listing_id→listings, image_path, position_no)
 - **cart_items**(cart_id, session_id, listing_id→listings, added_at)
-- **transactions**(txn_id, buyer_id→students, listing_id→listings, amount, payment_method, payment_reference, payment_status, terms_accepted_at, handover_code, fulfillment_status, pickup_completed_at, txn_date)
+- **transactions**(txn_id, buyer_id→students, listing_id→listings, amount, payment fields, refund fields, terms_accepted_at, handover_code, fulfillment_status, pickup_completed_at, txn_date)
+- **wallet_transactions**(wallet_txn_id, student_id→students, transaction_id→transactions, entry_type, amount, destination, reference, details, created_at)
 
 `status` on a listing is `AVAILABLE` → `SOLD`. Passwords are stored as salted PBKDF2 hashes (legacy hashes upgraded on login), never plain text.
 
@@ -82,6 +84,8 @@ seller and may appear in many carts and (once) in a transaction.
 3. ✅ Listing-creation and browse/search servlets with category/price filtering.
 4. ✅ Session-based cart and atomic UPI/net-banking checkout that writes a payment reference.
 5. ✅ Cart migration from cookie-based guest state to session state on login.
+6. ✅ Atomic cancellation and buyer-selected refund destination before verified pickup.
+7. ✅ Refund-wallet withdrawal with balance checks and an auditable ledger.
 
 ## 8. Expected outcomes — achieved
 - ✅ A working peer-to-peer resale marketplace with correct guest vs logged-in state handling.
@@ -94,9 +98,10 @@ seller and may appear in many carts and (once) in a transaction.
 - 💳 **Payment choice**: UPI and net banking are validated and recorded without collecting bank credentials.
 - 📷 **Product photos**: sellers upload one to three item pictures; administrators can change the primary picture.
 - 📊 **Admin analytics**: live totals, category mix, payment mix, ratings, waitlists, transaction value and estimated CO2e avoided.
+- ↩ **Refund protection**: original-source or wallet refunds, listing reopening, waitlist alerts and wallet withdrawal.
 
 ### Documented payment adaptation
-The supplied topic describes a simple in-app wallet. The approved stakeholder requirement replaces artificial signup money with UPI and net banking. CampusMarket therefore keeps wallet balances at zero and records a validated payment method/reference for every transaction. Authenticated identity and cart state still use `HttpSession`, preserving the core Cookies-vs-Sessions learning objective.
+The supplied topic describes an in-app wallet, while the stakeholder requirement removes artificial signup money and requires UPI/net-banking checkout. CampusMarket combines both: every new account starts at zero, purchases use UPI or net banking, and the wallet receives money only when a buyer chooses it for a refund. The buyer may then withdraw that refund through UPI or net banking. Authenticated identity and cart state still use `HttpSession`, preserving the core Cookies-vs-Sessions learning objective.
 
 ## 10. How to run
 Install **JDK 17**, then run `run.cmd` (Windows) or `./mvnw -q compile exec:java`, and open
@@ -112,11 +117,14 @@ Capture these steps for your demo (save images into `docs/screenshots/`):
 4. **Cart** page after login showing UPI and net-banking choices.
 5. **Checkout** success message with its payment reference.
 6. **History** page showing the payment reference, accepted terms and unlocked seller contact, plus the **Profile** page showing sustainability points.
+7. **Refund** choice in History and the **Wallet** page showing the credit, available balance and withdrawal ledger.
 
 ## 12. Latest marketplace safeguards
 - PBKDF2 password hashes with a per-user salt and CSRF protection on state-changing forms.
 - Atomic checkout: the first completed transaction wins a one-stock listing.
 - Automatic waitlist entry and an in-app alert if a competing buyer loses the checkout race.
+- Atomic refunds: order cancellation, listing reopening, wallet credit and waitlist notification either all commit or all roll back.
+- Conditional wallet withdrawal prevents the balance from going below zero, even during simultaneous requests.
 - Administrator controls for local product photos, listing status and moderation notes.
 - Category-aware price limits and prohibited-item checks before a listing is accepted.
 - Verified ratings and reviews tied to completed transactions.
@@ -127,5 +135,5 @@ Capture these steps for your demo (save images into `docs/screenshots/`):
 ## 13. Possible future improvements
 - Cloud object storage plus antivirus scanning and automated image moderation.
 - Verified campus email and pickup coordination.
-- Real payment-gateway integration, signed webhooks and refunds.
+- Real payment-gateway integration and signed payment/refund webhooks.
 - Pagination and full-text search.
