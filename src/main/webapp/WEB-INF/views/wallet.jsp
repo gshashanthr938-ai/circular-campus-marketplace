@@ -42,7 +42,7 @@
     <section>
         <div class="wallet-ledger-head"><div><h4>Wallet activity</h4><p>Every balance change has a reference.</p></div><a href="${ctx}/history">Order history</a></div>
         <c:choose>
-            <c:when test="${empty walletEntries}"><div class="surface pad wallet-empty"><strong>No wallet activity yet</strong><p>Choose &ldquo;Campus wallet&rdquo; when requesting a refund and it will appear here instantly.</p></div></c:when>
+            <c:when test="${empty walletEntries}"><div class="surface pad wallet-empty"><strong>No wallet activity yet</strong><p>Choose Campus wallet when requesting a refund and it will appear here instantly.</p></div></c:when>
             <c:otherwise><div class="wallet-ledger">
                 <c:forEach var="entry" items="${walletEntries}">
                     <article class="wallet-entry">
