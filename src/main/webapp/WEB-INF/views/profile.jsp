@@ -18,7 +18,7 @@
             <div class="small text-muted">points &middot; about <fmt:formatNumber value="${estimatedCo2SavedKg}" maxFractionDigits="1"/> kg CO2e avoided</div>
         </div>
     </div>
-    <div class="col-md-4"><div class="stat-box"><div class="text-muted">Accepted payments</div><div class="num" style="font-size:1.2rem;">UPI &amp; net banking</div><div class="small text-muted">Selected securely during checkout</div></div></div>
+    <div class="col-md-4"><a class="stat-box d-block" href="${ctx}/wallet"><div class="text-muted">Refund wallet</div><div class="num" style="font-size:1.35rem;">&#8377;<fmt:formatNumber value="${student.walletBalance}" minFractionDigits="2" maxFractionDigits="2"/></div><div class="small text-muted">Refunds can be withdrawn by UPI or net banking</div></a></div>
 </div>
 
 <div class="dashboard-grid mb-4">

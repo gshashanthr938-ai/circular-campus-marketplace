@@ -83,6 +83,7 @@ a:hover { color: var(--indigo-700); }
     background: var(--tint); color: var(--indigo-700);
     font-weight: 700; border-radius: 999px; padding: 7px 14px; font-size: 13.5px;
 }
+.profile-chip { color:var(--slate); font-size:13px; font-weight:700; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 /* ---------- Buttons ---------- */
 .btn { border-radius: 12px; font-weight: 700; padding: 10px 18px; border: 0;
@@ -418,6 +419,7 @@ h2, h3 { font-weight: 800; }
 .fulfillment-pill { flex:0 0 auto; padding:5px 9px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.035em; }
 .fulfillment-pill.waiting { color:#8a5a00; background:#fff5d8; }
 .fulfillment-pill.complete { color:#126146; background:#e8f8f1; }
+.fulfillment-pill.refunded { color:#714008; background:#fff0d6; }
 .order-money { display:grid; grid-template-columns:auto 1fr; gap:0 10px; margin:15px 0; padding:13px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .order-money strong { grid-row:1/3; align-self:center; color:var(--indigo-700); font:800 21px "Plus Jakarta Sans",sans-serif; }
 .order-money span,.order-money small { color:var(--muted); font-size:11.5px; word-break:break-word; }
@@ -447,3 +449,65 @@ h2, h3 { font-weight: 800; }
 .handover-form input { letter-spacing:.12em; font-weight:700; }
 @media(max-width:1000px) { .history-grid{grid-template-columns:1fr}.history-heading{align-items:flex-start;flex-direction:column}.handover-legend{min-width:0;width:100%;max-width:430px} }
 @media(max-width:560px) { .safe-pickup-strip{align-items:flex-start;flex-direction:column}.safe-pickup-strip i{display:none}.pickup-flow{grid-template-columns:1fr}.contact-panel{align-items:flex-start;flex-direction:column}.contact-panel>div:last-child{text-align:left}.order-top{flex-direction:column}.handover-form{grid-template-columns:1fr}.pickup-code{font-size:20px}.review-form{grid-template-columns:1fr} }
+
+/* Refunds and wallet */
+.refund-safety-note { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; margin:-6px 0 24px; padding:14px 16px; border:1px solid #d9dcff; border-radius:15px; background:linear-gradient(135deg,#f6f6ff,#fffaf0); color:var(--slate); font-size:12px; }
+.refund-safety-note strong { color:var(--indigo-700); }
+.refund-safety-note a { font-weight:800; white-space:nowrap; }
+.refunded-order { border-color:#ead8ba; background:linear-gradient(180deg,#fffdfa,#fff); }
+.refund-complete { display:flex; align-items:flex-start; gap:11px; padding:14px; border:1px solid #ead8ba; border-radius:14px; background:#fff8eb; color:#714008; }
+.refund-complete>span { display:grid; place-items:center; flex:0 0 29px; height:29px; border-radius:9px; background:#f3b54a; color:#3d2700; font-size:19px; font-weight:800; }
+.refund-complete strong,.refund-complete small { display:block; }
+.refund-complete small { color:#8a6a35; font-size:10.5px; word-break:break-word; }
+.refund-complete p { margin:7px 0 0; color:#6f6250; font-size:11px; }
+.seller-refund { margin-top:8px; }
+.refund-panel { margin-top:12px; border:1px solid #e0e2f0; border-radius:14px; background:#fbfbfe; overflow:hidden; }
+.refund-panel summary { padding:12px 14px; color:var(--indigo-700); cursor:pointer; font-size:12px; font-weight:800; }
+.refund-panel-body { padding:0 14px 14px; }
+.refund-panel-body>p { margin:0 0 10px; color:var(--muted); font-size:10.5px; }
+.refund-destinations { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.refund-destinations label { display:flex; align-items:flex-start; gap:8px; padding:10px; border:1px solid var(--line); border-radius:12px; background:#fff; cursor:pointer; }
+.refund-destinations strong,.refund-destinations small { display:block; }
+.refund-destinations strong { color:var(--ink); font-size:10.5px; }
+.refund-destinations small { color:var(--muted); font-size:9.5px; line-height:1.35; }
+.btn-refund { background:#2d326f; color:#fff; }
+.btn-refund:hover { background:#202556; color:#fff; }
+.refund-simulation { display:block; margin-top:8px; color:var(--muted); font-size:9px; line-height:1.35; }
+
+.wallet-hero { display:grid; grid-template-columns:1.3fr .7fr; align-items:center; gap:28px; margin-bottom:18px; padding:30px; border-radius:24px; background:linear-gradient(125deg,#171b4a 0%,#343b8f 58%,#d98d25 140%); color:#fff; box-shadow:0 18px 45px rgba(24,28,79,.18); }
+.wallet-hero h2 { margin:0 0 8px; color:#fff; font-size:34px; }
+.wallet-hero p { max-width:600px; margin:0; color:#d9dcff; }
+.wallet-hero .eyebrow { color:#ffcf7d; }
+.wallet-balance-card { display:flex; flex-direction:column; padding:22px; border:1px solid rgba(255,255,255,.25); border-radius:18px; background:rgba(255,255,255,.12); backdrop-filter:blur(8px); }
+.wallet-balance-card small,.wallet-balance-card span { color:#dfe1ff; font-size:11px; }
+.wallet-balance-card strong { margin:4px 0; font:800 34px "Plus Jakarta Sans",sans-serif; }
+.refund-explainer { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.refund-explainer>div { display:flex; align-items:flex-start; gap:10px; padding:14px; border:1px solid var(--line); border-radius:15px; background:#fff; }
+.refund-explainer b { display:grid; place-items:center; flex:0 0 25px; height:25px; border-radius:8px; background:var(--indigo); color:#fff; font-size:11px; }
+.refund-explainer strong,.refund-explainer small { display:block; }
+.refund-explainer strong { font-size:12px; }
+.refund-explainer small { margin-top:2px; color:var(--muted); font-size:10px; line-height:1.4; }
+.wallet-layout { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+.wallet-withdraw { position:sticky; top:88px; }
+.wallet-withdraw h4,.wallet-ledger-head h4 { font-weight:800; }
+.payment-choice legend { float:none; width:auto; margin:0 0 7px; font-size:14px; }
+.wallet-ledger-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.wallet-ledger-head p { margin:2px 0 0; color:var(--muted); font-size:12px; }
+.wallet-ledger-head a { font-size:12px; font-weight:800; }
+.wallet-ledger { display:grid; gap:10px; }
+.wallet-entry { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; padding:15px; border:1px solid var(--line); border-radius:15px; background:#fff; box-shadow:var(--shadow-sm); }
+.wallet-entry-icon { display:grid; place-items:center; width:34px; height:34px; border-radius:11px; font-weight:800; }
+.wallet-entry-icon.credit { background:#edf0ff; color:var(--indigo-700); }
+.wallet-entry-icon.debit { background:#fff2df; color:#8a5200; }
+.wallet-entry strong,.wallet-entry span,.wallet-entry small { display:block; }
+.wallet-entry strong { font-size:13px; }
+.wallet-entry span { color:var(--slate); font-size:11px; }
+.wallet-entry small { color:var(--muted); font-size:9.5px; }
+.wallet-entry>b { font:800 14px "Plus Jakarta Sans",sans-serif; white-space:nowrap; }
+.credit-text { color:var(--indigo-700); }
+.debit-text { color:#9a5b00; }
+.wallet-empty { text-align:center; color:var(--slate); }
+.wallet-empty p { margin:5px 0 0; color:var(--muted); font-size:12px; }
+
+@media(max-width:900px) { .wallet-layout{grid-template-columns:1fr}.wallet-withdraw{position:static}.wallet-hero{grid-template-columns:1fr}.refund-explainer{grid-template-columns:1fr} }
+@media(max-width:600px) { .profile-chip{display:none}.wallet-chip{padding:7px 10px;font-size:11px}.refund-safety-note{grid-template-columns:1fr}.refund-destinations{grid-template-columns:1fr}.wallet-hero{padding:22px}.wallet-hero h2{font-size:27px}.wallet-entry{grid-template-columns:auto 1fr}.wallet-entry>b{grid-column:2} }

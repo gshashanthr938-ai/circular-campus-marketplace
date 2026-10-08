@@ -51,9 +51,29 @@ CREATE TABLE IF NOT EXISTS transactions (
     handover_code VARCHAR(6) NOT NULL,
     fulfillment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PICKUP',
     pickup_completed_at TIMESTAMP,
+    refund_method VARCHAR(30),
+    refund_reference VARCHAR(80),
+    refund_reason VARCHAR(500),
+    refunded_at TIMESTAMP,
     txn_date   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_txn_buyer   FOREIGN KEY (buyer_id)   REFERENCES students(student_id),
     CONSTRAINT fk_txn_listing FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+);
+
+-- An auditable ledger for refund credits and user-requested withdrawals.
+-- Amounts are signed: credits are positive and withdrawals are negative.
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+    wallet_txn_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id    BIGINT        NOT NULL,
+    transaction_id BIGINT,
+    entry_type    VARCHAR(30)   NOT NULL,
+    amount        DECIMAL(10,2) NOT NULL,
+    destination  VARCHAR(30)   NOT NULL,
+    reference    VARCHAR(80)   NOT NULL,
+    details      VARCHAR(250),
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_wallet_student FOREIGN KEY (student_id) REFERENCES students(student_id),
+    CONSTRAINT fk_wallet_transaction FOREIGN KEY (transaction_id) REFERENCES transactions(txn_id)
 );
 
 CREATE TABLE IF NOT EXISTS listing_images (

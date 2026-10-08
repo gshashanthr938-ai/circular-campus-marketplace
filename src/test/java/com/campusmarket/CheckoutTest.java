@@ -3,6 +3,8 @@ import com.campusmarket.db.Db;
 import com.campusmarket.service.CheckoutService;
 import com.campusmarket.dao.ReviewDao;
 import com.campusmarket.dao.TransactionDao;
+import com.campusmarket.service.RefundService;
+import com.campusmarket.service.WalletService;
 import org.junit.jupiter.api.*;
 import java.sql.*;
 import java.math.BigDecimal;
@@ -87,5 +89,47 @@ class CheckoutTest {
             assertEquals(1,value("SELECT COUNT(*) FROM waitlist WHERE student_id="+losingBuyer+" AND listing_id=1").intValue());
             assertEquals(1,value("SELECT COUNT(*) FROM notifications WHERE student_id="+losingBuyer).intValue());
         } finally {pool.shutdownNow();}
+    }
+    @Test void walletRefundReopensItemAndCanBeWithdrawn() throws Exception {
+        cart("one",1);
+        assertTrue(new CheckoutService().checkout(1,"one","UPI","buyer@bank",true).success);
+        long txnId=value("SELECT txn_id FROM transactions WHERE listing_id=1").longValue();
+
+        RefundService.Result refund=new RefundService().refund(1,txnId,"WALLET","Seller cannot complete the pickup");
+        assertTrue(refund.success);
+        assertEquals(0,new BigDecimal("1300.00").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=1")));
+        assertEquals("AVAILABLE",textValue("SELECT status FROM listings WHERE listing_id=1"));
+        assertEquals(1,value("SELECT COUNT(*) FROM transactions WHERE txn_id="+txnId+" AND payment_status='REFUNDED' AND fulfillment_status='CANCELLED' AND refund_method='WALLET' AND refunded_at IS NOT NULL").intValue());
+        assertEquals(1,value("SELECT COUNT(*) FROM wallet_transactions WHERE student_id=1 AND entry_type='REFUND_CREDIT' AND amount=300").intValue());
+        assertEquals(0,value("SELECT sustainability_points FROM students WHERE student_id=1").intValue());
+        assertFalse(new RefundService().refund(1,txnId,"WALLET","Duplicate refund attempt").success);
+        assertFalse(new TransactionDao().confirmHandover(txnId,2,textValue("SELECT handover_code FROM transactions WHERE txn_id="+txnId)));
+        assertFalse(new ReviewDao().create(txnId,1,5,"Cancelled order"));
+
+        WalletService.Result withdrawal=new WalletService().withdraw(1,"200","UPI","buyer@bank");
+        assertTrue(withdrawal.success);
+        assertEquals(0,new BigDecimal("1100.00").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=1")));
+        assertEquals(1,value("SELECT COUNT(*) FROM wallet_transactions WHERE student_id=1 AND entry_type='WITHDRAWAL' AND amount=-200").intValue());
+        assertFalse(new WalletService().withdraw(1,"5000","UPI","buyer@bank").success);
+        assertEquals(0,new BigDecimal("1100.00").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=1")));
+    }
+    @Test void originalPaymentRefundDoesNotCreditWallet() throws Exception {
+        cart("one",1);
+        assertTrue(new CheckoutService().checkout(1,"one","NET_BANKING","SBI",true).success);
+        long txnId=value("SELECT txn_id FROM transactions WHERE listing_id=1").longValue();
+        assertTrue(new RefundService().refund(1,txnId,"ORIGINAL_METHOD","Item is no longer needed").success);
+        assertEquals(0,new BigDecimal("1000.00").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=1")));
+        assertEquals(0,value("SELECT COUNT(*) FROM wallet_transactions WHERE student_id=1").intValue());
+        assertEquals(1,value("SELECT COUNT(*) FROM transactions WHERE txn_id="+txnId+" AND refund_method='ORIGINAL_METHOD' AND refund_reference IS NOT NULL").intValue());
+    }
+    @Test void completedPickupCannotBeRefunded() throws Exception {
+        cart("one",1);
+        assertTrue(new CheckoutService().checkout(1,"one","UPI","buyer@bank",true).success);
+        long txnId=value("SELECT txn_id FROM transactions WHERE listing_id=1").longValue();
+        String code=textValue("SELECT handover_code FROM transactions WHERE txn_id="+txnId);
+        assertTrue(new TransactionDao().confirmHandover(txnId,2,code));
+        assertFalse(new RefundService().refund(1,txnId,"WALLET","Attempt after completed pickup").success);
+        assertEquals("SOLD",textValue("SELECT status FROM listings WHERE listing_id=1"));
+        assertEquals(0,new BigDecimal("1000.00").compareTo(value("SELECT wallet_balance FROM students WHERE student_id=1")));
     }
 }

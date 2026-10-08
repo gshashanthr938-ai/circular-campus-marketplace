@@ -23,6 +23,10 @@ public class TransactionView {
     private String handoverCode;
     private String fulfillmentStatus;
     private Timestamp pickupCompletedAt;
+    private String refundMethod;
+    private String refundReference;
+    private String refundReason;
+    private Timestamp refundedAt;
 
     public long getTxnId() {
         return txnId;
@@ -91,4 +95,15 @@ public class TransactionView {
     public Timestamp getPickupCompletedAt(){return pickupCompletedAt;}
     public void setPickupCompletedAt(Timestamp pickupCompletedAt){this.pickupCompletedAt=pickupCompletedAt;}
     public boolean isPickupCompleted(){return "PICKUP_COMPLETED".equals(fulfillmentStatus);}
+    public String getRefundMethod(){return refundMethod;}
+    public void setRefundMethod(String refundMethod){this.refundMethod=refundMethod;}
+    public String getRefundReference(){return refundReference;}
+    public void setRefundReference(String refundReference){this.refundReference=refundReference;}
+    public String getRefundReason(){return refundReason;}
+    public void setRefundReason(String refundReason){this.refundReason=refundReason;}
+    public Timestamp getRefundedAt(){return refundedAt;}
+    public void setRefundedAt(Timestamp refundedAt){this.refundedAt=refundedAt;}
+    public boolean isRefunded(){return "REFUNDED".equals(paymentStatus);}
+    public boolean isRefundedToWallet(){return "WALLET".equals(refundMethod);}
+    public boolean isAwaitingPickup(){return "AWAITING_PICKUP".equals(fulfillmentStatus) && "COMPLETED".equals(paymentStatus);}
 }

@@ -49,6 +49,12 @@ public final class Web {
     /** Store a one-time message shown on the next page. */
     public static void setFlash(HttpServletRequest req, String message) {
         req.getSession().setAttribute("flash", message);
+        req.getSession().removeAttribute("flashError");
+    }
+
+    public static void setFlashError(HttpServletRequest req, String message) {
+        req.getSession().setAttribute("flash", message);
+        req.getSession().setAttribute("flashError", true);
     }
 
     /** Read + clear the one-time flash message into a request attribute. */
@@ -56,7 +62,9 @@ public final class Web {
         HttpSession s = req.getSession(false);
         if (s != null && s.getAttribute("flash") != null) {
             req.setAttribute("flash", s.getAttribute("flash"));
+            req.setAttribute("flashError", Boolean.TRUE.equals(s.getAttribute("flashError")));
             s.removeAttribute("flash");
+            s.removeAttribute("flashError");
         }
     }
 
